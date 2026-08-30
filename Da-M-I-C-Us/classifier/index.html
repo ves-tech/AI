@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Da-M-I-C-Us — Compare</title>
+<style>
+:root{ color-scheme: dark;
+  --ink:#1A1A1E; --txt:#F2F2F4; --muted:#A9A9AF; --faint:#7A7A80;
+  --rule:#3A3A40; --panel:#26262A; --field:#1C1C1F;
+  --amber:#E8A33D; --red:#C4392F; --green:#3E8E5A; --grey:#8A8A8E; }
+*{box-sizing:border-box}
+body{margin:0;background:#000;color:var(--txt);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:26px 18px 48px}
+h1{font-size:26px;margin:0}
+.verbs{font-size:13px;font-weight:700;letter-spacing:.6px;color:var(--faint);margin-top:4px}
+.verbs b{color:var(--txt)}
+.sub{color:var(--muted);font-size:13px;margin-top:8px;max-width:900px;line-height:1.45}
+.stage{display:grid;grid-template-columns:290px minmax(0,1fr) 350px;gap:20px;margin-top:22px;align-items:start}
+@media(max-width:980px){.stage{grid-template-columns:1fr}.side{max-width:560px;margin:auto;width:100%}}
+.side{border:1.5px solid var(--rule);border-radius:16px;background:var(--panel);padding:14px}
+.side h2{font-size:12px;letter-spacing:.5px;margin:0 0 10px;color:var(--muted)}
+.side h2 b{color:var(--txt)}
+label{display:block;font-size:11.5px;font-weight:700;margin-top:9px}
+select,input[type=text]{width:100%;font:inherit;font-size:16px;margin-top:4px;padding:8px;border:2px solid var(--rule);border-radius:9px;background:var(--field);color:var(--txt)}
+.loadedline{font-size:11px;font-weight:700;color:var(--muted);margin-top:7px;word-break:break-all}
+.qgroup{margin-top:9px}
+.qlabel{font-size:11.5px;font-weight:700}
+.qchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+.qchip{background:var(--field);border:2px solid var(--rule);border-radius:11px;
+  width:52px;padding:4px 0 3px;cursor:pointer;text-align:center;color:var(--txt)}
+.qchip svg{width:30px;height:30px;display:block;margin:0 auto;background:#fff;border-radius:7px}
+.qchip .qc{font-size:9.5px;font-weight:800;margin-top:2px}
+.qchip.sel{border-color:var(--txt);background:#2E2E33}
+.qchip.unsetchip{border-style:dashed;color:var(--muted)}
+.qchip.unsetchip .qdash{font-size:18px;font-weight:800;line-height:30px;display:block}
+.qchip.unsetchip.sel{border-style:solid;border-color:var(--txt);color:var(--txt)}
+.fails{font-size:10px;color:var(--red);font-weight:700;margin-top:3px}
+.center{ text-align:center }
+svg.obj{width:100%;max-width:520px;height:auto}
+.stringline{font-size:13.5px;font-weight:700;margin-top:8px;word-break:break-word}
+.meanline{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.45;min-height:18px}
+.rulerow{background:var(--field);border:1.5px solid var(--rule);border-radius:12px;padding:9px 11px;margin-top:8px}
+.rulerow.hit{border-color:var(--txt);border-width:2px}
+.rulehead{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rulehead b{font-size:12.5px}
+.mark{font-size:13px;font-weight:800;width:16px;text-align:center;color:var(--faint)}
+.rulerow.hit .mark{color:var(--txt)}
+.action{font-size:9.5px;font-weight:700;padding:2.5px 7px;border-radius:7px;border:2px solid}
+.action.allowed{color:var(--green);border-color:var(--green)}
+.action.approval{color:var(--amber);border-color:var(--amber)}
+.decides{font-size:9.5px;font-weight:800;padding:2.5px 7px;border-radius:7px;background:var(--txt);color:#141416}
+.rn{font-size:10.5px;color:var(--muted);margin-top:4px;word-break:break-all}
+.polmeta{font-size:12px;font-weight:700;margin-bottom:2px}
+.ghostbtn{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:12px;padding:0;cursor:pointer;margin-top:10px}
+.loader{display:none;margin-top:10px}
+.loader textarea{width:100%;font-family:"Courier New",monospace;font-size:11px;border:1.5px solid var(--rule);border-radius:8px;padding:8px;background:var(--field);color:var(--txt)}
+.copy{font:inherit;font-size:12px;font-weight:700;border:2px solid var(--txt);background:var(--field);color:var(--txt);border-radius:9px;padding:5px 11px;cursor:pointer;margin-top:6px}
+.warntext{color:var(--red);font-size:11px;font-weight:700;margin-left:8px}
+.smallnote{font-size:10.5px;color:var(--faint);margin-top:12px;line-height:1.5}
+footer{margin-top:24px;font-size:10.5px;color:var(--faint)}
+button:focus,select:focus,textarea:focus{outline:3px solid #8AB4F8;outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Da-M-I-C-Us</h1>
+  <div class="verbs">CLASSIFY &nbsp;&middot;&nbsp; DEFINE POLICY &nbsp;&middot;&nbsp; <b>COMPARE</b></div>
+  <div class="sub">Exploration shell: Compare is the home. The left side says what the
+  deployment <b>is</b>; the right side says what the organisation <b>permits</b>; the
+  circle between them is the verdict. Classify and Define Policy are how the two sides
+  get filled.</div>
+
+  <div class="stage">
+    <section class="side" aria-label="Classification">
+      <h2><b>CLASSIFY</b> &mdash; what it is</h2>
+      <label for="clspaste">Paste classification</label>
+      <input type="text" id="clspaste" placeholder="WD+PD-OM-SI-OC-IU" autocomplete="off">
+      <div style="margin-top:6px"><button class="copy" onclick="applyPaste()">Load</button>
+      <span class="warntext" id="clserr"></span></div>
+      <div class="loadedline" id="loadedline"></div>
+      <a class="ghostbtn" href="damicus-v2_classifier_r4.html" target="_blank" rel="noopener" title="Opens damicus-v2_classifier_r4.html — keep it in the same folder as this file">or Classify&hellip; (guided, reference tool)</a>
+      <details style="margin-top:12px" open><summary style="font-size:12px;font-weight:700;cursor:pointer">Quick entry (single values)</summary>
+      <div id="quick"></div></details>
+      <div class="smallnote">Factual side. Four-part strings or Use &ldquo;unset&rdquo; are
+      capability classifications &mdash; no verdict attaches. Composites (+) paste in Data
+      and Model; quick entry covers single values only.
+      The &ldquo;or Classify&rdquo; link opens <b>damicus-v2_classifier_r4.html</b> from
+      the same folder as this file.</div>
+    </section>
+
+    <section class="center" aria-label="Verdict">
+      <svg class="obj" id="obj" viewBox="0 0 520 520"></svg>
+      <div class="stringline" id="stringline"></div>
+      <div class="meanline" id="meanline"></div>
+    </section>
+
+    <section class="side" aria-label="Policy">
+      <h2><b>DEFINE POLICY</b> &mdash; what is permitted</h2>
+      <label for="polchoose">Policy</label>
+      <select id="polchoose"></select>
+      <div id="rules"></div>
+      <div style="margin-top:10px">
+        <a class="ghostbtn" href="damicus-v2_policymaker_r9.html" target="_blank" rel="noopener" title="Opens damicus-v2_policymaker_r9.html — keep it in the same folder as this file">Define policy&hellip; (reference tool)</a>
+        &nbsp;&nbsp;<button class="ghostbtn" onclick="toggleLoader()">Import policy (JSON)&hellip;</button>
+      </div>
+      <div class="loader" id="loader">
+        <textarea id="poljson" rows="5" aria-label="Policy JSON"></textarea>
+        <div><button class="copy" onclick="applyPolicyJSON()">Load</button>
+        <button class="ghostbtn" onclick="useVES()" style="margin-left:10px">Back to VES illustrative</button>
+        <span class="warntext" id="polerr"></span></div>
+      </div>
+      <div class="smallnote">Normative side. A policy is a <b>list of rules</b> &mdash;
+      matching any one is sufficient, and the most permissive matching rule decides.
+      Rule building lives in the reference Policy Maker; paste its Copy&nbsp;JSON here.
+      &ldquo;Define policy&rdquo; opens <b>damicus-v2_policymaker_r9.html</b> from the
+      same folder as this file.</div>
+    </section>
+  </div>
+
+  <footer>Da-M-I-C-Us v1.0 draft 2 &middot; VES Technology Committee &middot; compare shell
+  (exploration) &middot; r6 &middot; Aug 2026 &middot; reference implementations:
+  classifier r4, policy maker r9 &middot; shared engine</footer>
+</div>
+
+<script>
+(() => {
+  const FRAGS = {"ND": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"5.1\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>", "LD": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><g transform=\"rotate(24 28.8 31.8)\"><rect x=\"27.5\" y=\"31.8\" width=\"2.5\" height=\"5.8\" rx=\"0.3\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"0.9\"/><path d=\"M 27.5 37.6 L 28.8 36.1 L 30.1 37.6 Z\" fill=\"#FFFFFF\" stroke=\"none\"/></g><g transform=\"rotate(-24 32.2 31.8)\"><rect x=\"30.9\" y=\"31.8\" width=\"2.5\" height=\"5.8\" rx=\"0.3\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"0.9\"/><path d=\"M 30.9 37.6 L 32.2 36.1 L 33.5 37.6 Z\" fill=\"#FFFFFF\" stroke=\"none\"/></g><circle cx=\"30.5\" cy=\"29.6\" r=\"3.9\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.1\"/><circle cx=\"30.5\" cy=\"29.6\" r=\"1.5\" fill=\"#FFFFFF\" stroke=\"#FFFFFF\" stroke-width=\"0.2\"/></svg>", "PD": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 25.4 36.4 L 25.4 30.8 L 30.5 26.2 L 35.6 30.8 L 35.6 36.4 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.1\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "WD": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"5.1\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.8\"/><ellipse cx=\"30.5\" cy=\"31.5\" rx=\"2.3\" ry=\"5.1\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.4\"/><line x1=\"25.4\" y1=\"31.5\" x2=\"35.6\" y2=\"31.5\" stroke=\"#FFFFFF\" stroke-width=\"1.4\" stroke-linecap=\"round\"/><line x1=\"26.3\" y1=\"29.2\" x2=\"34.7\" y2=\"29.2\" stroke=\"#FFFFFF\" stroke-width=\"1.3\" stroke-linecap=\"round\"/><line x1=\"26.3\" y1=\"33.8\" x2=\"34.7\" y2=\"33.8\" stroke=\"#FFFFFF\" stroke-width=\"1.3\" stroke-linecap=\"round\"/></svg>", "UD": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 27.9 29.6 A 2.7 2.7 0 1 1 31.7 32.4 L 30.5 33.5\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.8\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"36.3\" r=\"0.6\" fill=\"#FFFFFF\" stroke=\"#FFFFFF\" stroke-width=\"1.3\"/></svg>", "OM": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><circle cx=\"16.5\" cy=\"19.0\" r=\"3.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><rect x=\"26.2\" y=\"31.8\" width=\"8.5\" height=\"5.9\" rx=\"1.0\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><g transform=\"rotate(-30 27.9 31.8)\"><path d=\"M 27.9 31.8 L 27.9 29.3 A 2.5 2.5 0 0 1 33.0 29.3 L 33.0 31.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></g></svg>", "PM": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><circle cx=\"16.5\" cy=\"19.0\" r=\"3.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><path d=\"M 25.4 36.4 L 25.4 30.8 L 30.5 26.2 L 35.6 30.8 L 35.6 36.4 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.1\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "CM": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><circle cx=\"16.5\" cy=\"19.0\" r=\"3.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><path d=\"M 25.8 31.5 Q 30.5 27.2 35.2 31.5 Q 30.5 35.8 25.8 31.5 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"1.1\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#E8A33D\" stroke-width=\"3.6\" stroke-linecap=\"round\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>", "RM": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><circle cx=\"16.5\" cy=\"19.0\" r=\"3.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><rect x=\"26.2\" y=\"31.8\" width=\"8.5\" height=\"5.9\" rx=\"1.0\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><path d=\"M 27.9 31.8 L 27.9 29.3 A 2.5 2.5 0 0 1 33.0 29.3 L 33.0 31.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "SI": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"6.2\" y=\"10.1\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"12.6\" x2=\"16.9\" y2=\"12.6\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"12.6\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"16.5\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"19.0\" x2=\"16.9\" y2=\"19.0\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"19.0\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"22.9\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"25.4\" x2=\"16.9\" y2=\"25.4\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"25.4\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><path d=\"M 25.4 36.4 L 25.4 30.8 L 30.5 26.2 L 35.6 30.8 L 35.6 36.4 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.1\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "EI": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"6.2\" y=\"10.1\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"12.6\" x2=\"16.9\" y2=\"12.6\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"12.6\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"16.5\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"19.0\" x2=\"16.9\" y2=\"19.0\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"19.0\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"22.9\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"25.4\" x2=\"16.9\" y2=\"25.4\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"25.4\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"26.8\" y=\"26.7\" width=\"7.5\" height=\"5.6\" rx=\"0.6\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"27.9\" y=\"27.8\" width=\"5.1\" height=\"3.6\" rx=\"0.3\" fill=\"#FFFFFF\" stroke=\"none\"/><rect x=\"25.4\" y=\"33.5\" width=\"10.2\" height=\"1.7\" rx=\"0.9\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/></svg>", "DI": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"6.2\" y=\"10.1\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"12.6\" x2=\"16.9\" y2=\"12.6\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"12.6\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"16.5\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"19.0\" x2=\"16.9\" y2=\"19.0\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"19.0\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"22.9\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"25.4\" x2=\"16.9\" y2=\"25.4\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"25.4\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><circle cx=\"30.5\" cy=\"29.3\" r=\"2.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><path d=\"M 26.8 36.6 C 26.8 32.2 34.2 32.2 34.2 36.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "MI": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"6.2\" y=\"10.1\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"12.6\" x2=\"16.9\" y2=\"12.6\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"12.6\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"16.5\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"19.0\" x2=\"16.9\" y2=\"19.0\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"19.0\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"22.9\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"25.4\" x2=\"16.9\" y2=\"25.4\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"25.4\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><circle cx=\"27.6\" cy=\"30.3\" r=\"1.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.5\"/><circle cx=\"33.4\" cy=\"30.3\" r=\"1.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.5\"/><circle cx=\"30.5\" cy=\"28.8\" r=\"1.7\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.5\"/><path d=\"M 25.2 36.6 C 25.2 32.5 35.8 32.5 35.8 36.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "OC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><rect x=\"26.2\" y=\"31.8\" width=\"8.5\" height=\"5.9\" rx=\"1.0\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><g transform=\"rotate(-30 27.9 31.8)\"><path d=\"M 27.9 31.8 L 27.9 29.3 A 2.5 2.5 0 0 1 33.0 29.3 L 33.0 31.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></g></svg>", "PC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 25.4 36.4 L 25.4 30.8 L 30.5 26.2 L 35.6 30.8 L 35.6 36.4 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.1\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "CC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 25.8 31.5 Q 30.5 27.2 35.2 31.5 Q 30.5 35.8 25.8 31.5 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"1.1\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#E8A33D\" stroke-width=\"3.6\" stroke-linecap=\"round\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>", "RC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><rect x=\"26.2\" y=\"31.8\" width=\"8.5\" height=\"5.9\" rx=\"1.0\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><path d=\"M 27.9 31.8 L 27.9 29.3 A 2.5 2.5 0 0 1 33.0 29.3 L 33.0 31.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "UC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"5.1\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.8\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#FFFFFF\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>", "BU": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"5.2\" y=\"10.8\" width=\"22.5\" height=\"16.5\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><rect x=\"9.3\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.3\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.0\" y=\"15.7\" width=\"15.0\" height=\"7.2\" rx=\"0.5\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.7\"/><rect x=\"25.2\" y=\"29.8\" width=\"10.5\" height=\"6.8\" rx=\"0.9\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><path d=\"M 28.8 29.8 L 28.8 27.8 L 32.2 27.8 L 32.2 29.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><line x1=\"25.2\" y1=\"32.5\" x2=\"35.8\" y2=\"32.5\" stroke=\"#1A1A1E\" stroke-width=\"1.3\" stroke-linecap=\"round\"/><rect x=\"29.8\" y=\"31.7\" width=\"1.4\" height=\"1.7\" rx=\"0.3\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/></svg>", "PU": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"5.2\" y=\"10.8\" width=\"22.5\" height=\"16.5\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><rect x=\"9.3\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.3\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.0\" y=\"15.7\" width=\"15.0\" height=\"7.2\" rx=\"0.5\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.7\"/><line x1=\"25.6\" y1=\"36.4\" x2=\"31.9\" y2=\"30.1\" stroke=\"#1A1A1E\" stroke-width=\"2.7\" stroke-linecap=\"round\"/><circle cx=\"33.4\" cy=\"28.6\" r=\"3.6\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.1\"/><g transform=\"rotate(45 33.4 28.6)\"><rect x=\"31.6\" y=\"23.3\" width=\"3.6\" height=\"5.9\" fill=\"#FFFFFF\" stroke=\"none\"/></g></svg>", "IU": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"5.2\" y=\"10.8\" width=\"22.5\" height=\"16.5\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><rect x=\"9.3\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.3\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.0\" y=\"15.7\" width=\"15.0\" height=\"7.2\" rx=\"0.5\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.7\"/><g transform=\"rotate(-45 30.5 31.5)\"><rect x=\"29.1\" y=\"26.2\" width=\"2.9\" height=\"7.8\" rx=\"0.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"29.1\" y1=\"28.1\" x2=\"31.9\" y2=\"28.1\" stroke=\"#1A1A1E\" stroke-width=\"1.4\" stroke-linecap=\"round\"/><path d=\"M 29.1 34.0 L 30.5 37.1 L 31.9 34.0 Z\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"0.9\" stroke-linejoin=\"round\"/></g></svg>", "DU": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"5.2\" y=\"10.8\" width=\"22.5\" height=\"16.5\" rx=\"1.2\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2.2\"/><rect x=\"9.3\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#FFFFFF\" stroke=\"none\"/><rect x=\"9.3\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#FFFFFF\" stroke=\"none\"/><rect x=\"15.5\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#FFFFFF\" stroke=\"none\"/><rect x=\"15.5\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#FFFFFF\" stroke=\"none\"/><rect x=\"21.7\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#FFFFFF\" stroke=\"none\"/><rect x=\"21.7\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#FFFFFF\" stroke=\"none\"/><rect x=\"9.0\" y=\"15.7\" width=\"15.0\" height=\"7.2\" rx=\"0.5\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"1.7\"/><path d=\"M 29.6 27.4 C 30.3 31.3 30.7 31.7 34.6 32.4 C 30.7 33.0 30.3 33.4 29.6 37.3 C 29.0 33.4 28.6 33.0 24.7 32.4 C 28.6 31.7 29.0 31.3 29.6 27.4 Z\" fill=\"#FFFFFF\" stroke=\"#FFFFFF\" stroke-width=\"0.7\" stroke-linejoin=\"round\"/><path d=\"M 34.1 25.7 C 34.4 27.4 34.6 27.6 36.3 27.9 C 34.6 28.2 34.4 28.4 34.1 30.1 C 33.8 28.4 33.6 28.2 31.9 27.9 C 33.6 27.6 33.8 27.4 34.1 25.7 Z\" fill=\"#FFFFFF\" stroke=\"#FFFFFF\" stroke-width=\"0.7\" stroke-linejoin=\"round\"/></svg>"};
+  const CHIPFR = {"ND": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"5.1\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>", "LD": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><g transform=\"rotate(24 28.8 31.8)\"><rect x=\"27.5\" y=\"31.8\" width=\"2.5\" height=\"5.8\" rx=\"0.3\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"0.9\"/><path d=\"M 27.5 37.6 L 28.8 36.1 L 30.1 37.6 Z\" fill=\"#FFFFFF\" stroke=\"none\"/></g><g transform=\"rotate(-24 32.2 31.8)\"><rect x=\"30.9\" y=\"31.8\" width=\"2.5\" height=\"5.8\" rx=\"0.3\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"0.9\"/><path d=\"M 30.9 37.6 L 32.2 36.1 L 33.5 37.6 Z\" fill=\"#FFFFFF\" stroke=\"none\"/></g><circle cx=\"30.5\" cy=\"29.6\" r=\"3.9\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.1\"/><circle cx=\"30.5\" cy=\"29.6\" r=\"1.5\" fill=\"#FFFFFF\" stroke=\"#FFFFFF\" stroke-width=\"0.2\"/></svg>", "PD": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 25.4 36.4 L 25.4 30.8 L 30.5 26.2 L 35.6 30.8 L 35.6 36.4 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.1\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "WD": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"5.1\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><ellipse cx=\"30.5\" cy=\"31.5\" rx=\"2.3\" ry=\"5.1\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.4\"/><line x1=\"25.4\" y1=\"31.5\" x2=\"35.6\" y2=\"31.5\" stroke=\"#1A1A1E\" stroke-width=\"1.4\" stroke-linecap=\"round\"/><line x1=\"26.3\" y1=\"29.2\" x2=\"34.7\" y2=\"29.2\" stroke=\"#1A1A1E\" stroke-width=\"1.3\" stroke-linecap=\"round\"/><line x1=\"26.3\" y1=\"33.8\" x2=\"34.7\" y2=\"33.8\" stroke=\"#1A1A1E\" stroke-width=\"1.3\" stroke-linecap=\"round\"/></svg>", "UD": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><ellipse cx=\"16.5\" cy=\"11.8\" rx=\"10.0\" ry=\"3.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"6.5\" y1=\"11.8\" x2=\"6.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><line x1=\"26.5\" y1=\"11.8\" x2=\"26.5\" y2=\"26.2\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><path d=\"M 6.5 26.2 A 10.0 3.6 0 0 0 26.5 26.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 16.6 A 10.0 3.6 0 0 0 26.5 16.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 6.5 21.4 A 10.0 3.6 0 0 0 26.5 21.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 27.9 29.6 A 2.7 2.7 0 1 1 31.7 32.4 L 30.5 33.5\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"36.3\" r=\"0.6\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/></svg>", "OM": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><circle cx=\"16.5\" cy=\"19.0\" r=\"3.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><rect x=\"26.2\" y=\"31.8\" width=\"8.5\" height=\"5.9\" rx=\"1.0\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><g transform=\"rotate(-30 27.9 31.8)\"><path d=\"M 27.9 31.8 L 27.9 29.3 A 2.5 2.5 0 0 1 33.0 29.3 L 33.0 31.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></g></svg>", "PM": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><circle cx=\"16.5\" cy=\"19.0\" r=\"3.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><path d=\"M 25.4 36.4 L 25.4 30.8 L 30.5 26.2 L 35.6 30.8 L 35.6 36.4 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.1\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "CM": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><circle cx=\"16.5\" cy=\"19.0\" r=\"3.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><path d=\"M 25.8 31.5 Q 30.5 27.2 35.2 31.5 Q 30.5 35.8 25.8 31.5 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"1.1\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#FFFFFF\" stroke-width=\"3.6\" stroke-linecap=\"round\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>", "RM": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"25.7\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"25.7\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"9.8\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"9.8\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"16.5\" y1=\"19.0\" x2=\"23.2\" y2=\"12.3\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><circle cx=\"23.2\" cy=\"12.3\" r=\"2.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><circle cx=\"16.5\" cy=\"19.0\" r=\"3.4\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><rect x=\"26.2\" y=\"31.8\" width=\"8.5\" height=\"5.9\" rx=\"1.0\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><path d=\"M 27.9 31.8 L 27.9 29.3 A 2.5 2.5 0 0 1 33.0 29.3 L 33.0 31.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "SI": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"6.2\" y=\"10.1\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"12.6\" x2=\"16.9\" y2=\"12.6\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"12.6\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"16.5\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"19.0\" x2=\"16.9\" y2=\"19.0\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"19.0\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"22.9\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"25.4\" x2=\"16.9\" y2=\"25.4\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"25.4\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><path d=\"M 25.4 36.4 L 25.4 30.8 L 30.5 26.2 L 35.6 30.8 L 35.6 36.4 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.1\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "EI": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"6.2\" y=\"10.1\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"12.6\" x2=\"16.9\" y2=\"12.6\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"12.6\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"16.5\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"19.0\" x2=\"16.9\" y2=\"19.0\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"19.0\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"22.9\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"25.4\" x2=\"16.9\" y2=\"25.4\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"25.4\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"26.8\" y=\"26.7\" width=\"7.5\" height=\"5.6\" rx=\"0.6\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"27.9\" y=\"27.8\" width=\"5.1\" height=\"3.6\" rx=\"0.3\" fill=\"#FFFFFF\" stroke=\"none\"/><rect x=\"25.4\" y=\"33.5\" width=\"10.2\" height=\"1.7\" rx=\"0.9\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/></svg>", "DI": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"6.2\" y=\"10.1\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"12.6\" x2=\"16.9\" y2=\"12.6\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"12.6\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"16.5\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"19.0\" x2=\"16.9\" y2=\"19.0\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"19.0\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"22.9\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"25.4\" x2=\"16.9\" y2=\"25.4\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"25.4\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><circle cx=\"30.5\" cy=\"29.3\" r=\"2.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><path d=\"M 26.8 36.6 C 26.8 32.2 34.2 32.2 34.2 36.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "MI": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"6.2\" y=\"10.1\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"12.6\" x2=\"16.9\" y2=\"12.6\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"12.6\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"16.5\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"19.0\" x2=\"16.9\" y2=\"19.0\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"19.0\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><rect x=\"6.2\" y=\"22.9\" width=\"20.5\" height=\"5.0\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><line x1=\"9.1\" y1=\"25.4\" x2=\"16.9\" y2=\"25.4\" stroke=\"#1A1A1E\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><circle cx=\"23.3\" cy=\"25.4\" r=\"0.7\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><circle cx=\"27.6\" cy=\"30.3\" r=\"1.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.5\"/><circle cx=\"33.4\" cy=\"30.3\" r=\"1.4\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.5\"/><circle cx=\"30.5\" cy=\"28.8\" r=\"1.7\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.5\"/><path d=\"M 25.2 36.6 C 25.2 32.5 35.8 32.5 35.8 36.6\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "OC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><rect x=\"26.2\" y=\"31.8\" width=\"8.5\" height=\"5.9\" rx=\"1.0\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><g transform=\"rotate(-30 27.9 31.8)\"><path d=\"M 27.9 31.8 L 27.9 29.3 A 2.5 2.5 0 0 1 33.0 29.3 L 33.0 31.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></g></svg>", "PC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 25.4 36.4 L 25.4 30.8 L 30.5 26.2 L 35.6 30.8 L 35.6 36.4 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.1\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "CC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 25.8 31.5 Q 30.5 27.2 35.2 31.5 Q 30.5 35.8 25.8 31.5 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"1.1\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#FFFFFF\" stroke-width=\"3.6\" stroke-linecap=\"round\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>", "RC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><rect x=\"26.2\" y=\"31.8\" width=\"8.5\" height=\"5.9\" rx=\"1.0\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/><path d=\"M 27.9 31.8 L 27.9 29.3 A 2.5 2.5 0 0 1 33.0 29.3 L 33.0 31.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>", "UC": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M 19.8 9.2 L 8.8 9.2 L 8.8 28.8 L 24.2 28.8 L 24.2 13.8 Z\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 19.8 9.2 L 19.8 13.8 L 24.2 13.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.9\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 15.0 17.6 L 12.1 20.8 L 15.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M 18.0 17.6 L 20.9 20.8 L 18.0 24.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><circle cx=\"30.5\" cy=\"31.5\" r=\"5.1\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"26.9\" y1=\"27.9\" x2=\"34.1\" y2=\"35.1\" stroke=\"#1A1A1E\" stroke-width=\"1.8\" stroke-linecap=\"round\"/></svg>", "BU": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"5.2\" y=\"10.8\" width=\"22.5\" height=\"16.5\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><rect x=\"9.3\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.3\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.0\" y=\"15.7\" width=\"15.0\" height=\"7.2\" rx=\"0.5\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.7\"/><rect x=\"25.2\" y=\"29.8\" width=\"10.5\" height=\"6.8\" rx=\"0.9\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><path d=\"M 28.8 29.8 L 28.8 27.8 L 32.2 27.8 L 32.2 29.8\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.6\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><line x1=\"25.2\" y1=\"32.5\" x2=\"35.8\" y2=\"32.5\" stroke=\"#1A1A1E\" stroke-width=\"1.3\" stroke-linecap=\"round\"/><rect x=\"29.8\" y=\"31.7\" width=\"1.4\" height=\"1.7\" rx=\"0.3\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.3\"/></svg>", "PU": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"5.2\" y=\"10.8\" width=\"22.5\" height=\"16.5\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><rect x=\"9.3\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.3\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.0\" y=\"15.7\" width=\"15.0\" height=\"7.2\" rx=\"0.5\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.7\"/><line x1=\"25.6\" y1=\"36.4\" x2=\"31.9\" y2=\"30.1\" stroke=\"#1A1A1E\" stroke-width=\"2.7\" stroke-linecap=\"round\"/><circle cx=\"33.4\" cy=\"28.6\" r=\"3.6\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"1.1\"/><g transform=\"rotate(45 33.4 28.6)\"><rect x=\"31.6\" y=\"23.3\" width=\"3.6\" height=\"5.9\" fill=\"#FFFFFF\" stroke=\"none\"/></g></svg>", "IU": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"5.2\" y=\"10.8\" width=\"22.5\" height=\"16.5\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><rect x=\"9.3\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.3\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.0\" y=\"15.7\" width=\"15.0\" height=\"7.2\" rx=\"0.5\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.7\"/><g transform=\"rotate(-45 30.5 31.5)\"><rect x=\"29.1\" y=\"26.2\" width=\"2.9\" height=\"7.8\" rx=\"0.0\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.8\"/><line x1=\"29.1\" y1=\"28.1\" x2=\"31.9\" y2=\"28.1\" stroke=\"#1A1A1E\" stroke-width=\"1.4\" stroke-linecap=\"round\"/><path d=\"M 29.1 34.0 L 30.5 37.1 L 31.9 34.0 Z\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"0.9\" stroke-linejoin=\"round\"/></g></svg>", "DU": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><rect x=\"5.2\" y=\"10.8\" width=\"22.5\" height=\"16.5\" rx=\"1.2\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"2.2\"/><rect x=\"9.3\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.3\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"15.5\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"11.9\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"21.7\" y=\"24.6\" width=\"2.0\" height=\"1.4\" rx=\"0.4\" fill=\"#1A1A1E\" stroke=\"none\"/><rect x=\"9.0\" y=\"15.7\" width=\"15.0\" height=\"7.2\" rx=\"0.5\" fill=\"none\" stroke=\"#1A1A1E\" stroke-width=\"1.7\"/><path d=\"M 29.6 27.4 C 30.3 31.3 30.7 31.7 34.6 32.4 C 30.7 33.0 30.3 33.4 29.6 37.3 C 29.0 33.4 28.6 33.0 24.7 32.4 C 28.6 31.7 29.0 31.3 29.6 27.4 Z\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"0.7\" stroke-linejoin=\"round\"/><path d=\"M 34.1 25.7 C 34.4 27.4 34.6 27.6 36.3 27.9 C 34.6 28.2 34.4 28.4 34.1 30.1 C 33.8 28.4 33.6 28.2 31.9 27.9 C 33.6 27.6 33.8 27.4 34.1 25.7 Z\" fill=\"#1A1A1E\" stroke=\"#1A1A1E\" stroke-width=\"0.7\" stroke-linejoin=\"round\"/></svg>"};
+  const FILL = { clear:"#FFFFFF", amber:"#E8A33D", red:"#C4392F" };
+  const TIERS = {
+    ND:"clear",LD:"clear",PD:"clear",WD:"red",UD:"red",
+    OM:"clear",PM:"clear",CM:"amber",RM:"amber",
+    SI:"clear",EI:"clear",DI:"amber",MI:"amber",
+    OC:"clear",PC:"clear",CC:"amber",RC:"amber",UC:"red",
+    BU:"clear",PU:"clear",IU:"amber",DU:"red" };
+  const REGISTRYC = { Da:["PD","LD","ND","WD","UD"], M:["PM","OM","CM","RM"],
+    I:["SI","EI","DI","MI"], C:["PC","OC","CC","RC","UC"], Us:["BU","PU","IU","DU"] };
+  const esc = (t)=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ==== shared Da-M-I-C-Us engine — compiled verbatim from engine.js (single source of truth for POLICY, matching, parsing). Do not edit here. ==== */
+// Da-M-I-C-Us policy engine — Draft 2 illustrative internal policy.
+// A classification: { Da: [codes], M, I, C, Us (code or null) }.
+// Matching (Draft 2 §6.3): every value per dimension — including each
+// member of a "+" composite — must be in the rule's permitted set.
+
+const POLICY = [
+  { id: "P1", name: "Self-Hosted Proprietary",
+    rule: { Da: ["PD", "ND"], M: ["PM"], I: ["SI"], C: ["PC", "OC"], Us: "*" },
+    verdict: "allowed" },
+  { id: "P2", name: "Business Operations Support",
+    rule: { Da: "*", M: ["CM"], I: ["MI", "DI"], C: ["CC"], Us: ["BU", "PU"] },
+    verdict: "allowed" },
+  { id: "P3", name: "Self-Hosted Open Model",
+    rule: { Da: "*", M: ["OM"], I: ["SI", "EI"], C: ["OC"], Us: ["BU", "PU", "IU"] },
+    verdict: "allowed" },
+  { id: "P4", name: "Internal Evaluation Only",
+    rule: { Da: "*", M: ["OM", "RM"], I: ["SI"], C: ["OC", "RC", "UC"], Us: ["BU"] },
+    verdict: "allowed" },
+  { id: "P5", name: "Rights-Cleared Generative Delivery",
+    rule: { Da: ["LD", "PD"], M: ["CM", "PM"], I: "*", C: ["CC", "PC"], Us: ["IU", "DU"] },
+    verdict: "approval" },
+];
+
+function dimValues(cls, dim) {
+  const v = cls[dim];
+  return Array.isArray(v) ? v : [v];
+}
+
+function dimPasses(rule, cls, dim) {
+  const allowed = rule[dim];
+  if (allowed === "*") return true;
+  return dimValues(cls, dim).every((v) => allowed.includes(v));
+}
+
+// Per-policy breakdown for the "why" table. Us is skipped when unset.
+function analyse(cls, rules) {
+  const dims = ["Da", "M", "I", "C", "Us"];
+  return (rules || POLICY).map((p) => {
+    const cells = {};
+    let pass = true;
+    for (const d of dims) {
+      if (d === "Us" && cls.Us === null) { cells[d] = "na"; continue; }
+      const ok = dimPasses(p.rule, cls, d);
+      cells[d] = ok ? "pass" : "fail";
+      if (!ok) pass = false;
+    }
+    const intrinsicPass = ["Da", "M", "I", "C"].every((d) => cells[d] === "pass");
+    return { id: p.id, name: p.name, verdict: p.verdict, cells,
+             match: cls.Us !== null && pass, intrinsicPass,
+             usAllowed: p.rule.Us };
+  });
+}
+
+function evaluate(cls, rules) {
+  const rows = analyse(cls, rules);
+  if (cls.Us === null) {
+    const possible = rows.filter((r) => r.intrinsicPass);
+    return { kind: "unset", rows, possible };
+  }
+  const matched = rows.filter((r) => r.match);
+  const allowed = matched.filter((r) => r.verdict === "allowed");
+  if (allowed.length) return { kind: "allowed", rows, matched: allowed, allMatched: matched };
+  const approval = matched.filter((r) => r.verdict === "approval");
+  if (approval.length) return { kind: "approval", rows, matched: approval, allMatched: matched };
+  return { kind: "notallowed", rows, matched: [], allMatched: [] };
+}
+
+function stringOf(cls) {
+  const j = (d) => dimValues(cls, d).join("+");
+  const parts = [j("Da"), j("M"), j("I"), j("C")];
+  if (cls.Us !== null) parts.push(cls.Us);   // capability classification is four-part
+  return parts.join("-");
+}
+
+const REGISTRY = { Da: ["PD","LD","ND","WD","UD"], M: ["PM","OM","CM","RM"],
+  I: ["SI","EI","DI","MI"], C: ["PC","OC","CC","RC","UC"], Us: ["BU","PU","IU","DU"] };
+const DIMLABELS = { Da: "Data (Da)", M: "Model (M)", I: "Infrastructure (I)",
+  C: "Code (C)", Us: "Use (Us)" };
+function splitDim(part, dim) {
+  const vs = part.split("+").map((x) => x.trim().toUpperCase()).filter(Boolean);
+  if (!vs.length) return { err: "Empty " + DIMLABELS[dim] + " value." };
+  for (const v of vs) {
+    if (v === "*") return { err: "\u201c*\u201d is a policy wildcard, not a classification value \u2014 use \u2018unset\u2019 for a capability classification." };
+    if (!REGISTRY[dim].includes(v)) return { err: "Unknown " + DIMLABELS[dim] + " code: " + v };
+  }
+  if (vs.length > 1 && dim !== "Da" && dim !== "M")
+    return { err: "Composites (+) apply to Data and Model only (Draft 2 \u00a77)." };
+  return { vals: vs };
+}
+function parseString(s) {
+  s = String(s || "").trim();
+  if (!s) return { err: "Enter a string." };
+  const parts = s.split("-").map((x) => x.trim());
+  if (parts.length === 5 && parts[4] === "") parts.pop();
+  if (parts.length !== 4 && parts.length !== 5)
+    return { err: "Need four parts (capability classification) or five (deployment)." };
+  const out = {};
+  const dims4 = ["Da", "M", "I", "C"];
+  for (let k = 0; k < 4; k++) {
+    const r = splitDim(parts[k], dims4[k]);
+    if (r.err) return r;
+    out[dims4[k]] = r.vals;
+  }
+  let us = null;
+  if (parts.length === 5) {
+    const t = parts[4].toUpperCase();
+    if (["UNSET", "\u2014", "\u2013", "\u2012", "--"].includes(t)) us = null;
+    else if (t === "*") return { err: "\u201c*\u201d is a policy wildcard, not a classification value \u2014 use \u2018unset\u2019 for a capability classification." };
+    else if (t.includes("+")) return { err: "Composites (+) apply to Data and Model only (Draft 2 \u00a77)." };
+    else if (!REGISTRY.Us.includes(t)) return { err: "Unknown Use code (or \u2018unset\u2019): " + parts[4] };
+    else us = t;
+  }
+  return { cls: { Da: out.Da, M: out.M.length > 1 ? out.M : out.M[0],
+                  I: out.I[0], C: out.C[0], Us: us } };
+}
+
+if (typeof module !== "undefined") {
+  module.exports = { POLICY, evaluate, analyse, stringOf, parseString, splitDim, REGISTRY };
+}
+
+
+  const dims = [
+    { key:'Da', codes:['PD','LD','ND','WD','UD'] },
+    { key:'M',  codes:['PM','OM','CM','RM'] },
+    { key:'I',  codes:['SI','EI','DI','MI'] },
+    { key:'C',  codes:['PC','OC','CC','RC','UC'] },
+    { key:'Us', codes:['unset','BU','PU','IU','DU'] } ];
+  const state = { vals:{Da:'LD',M:'CM',I:'DI',C:'CC',Us:'IU'},
+                  pasted:null, mode:'ves', custom:null };
+
+  function clsOf(){
+    if (state.pasted) return state.pasted;
+    return { Da:[state.vals.Da], M:state.vals.M, I:state.vals.I, C:state.vals.C,
+             Us: state.vals.Us==='unset' ? null : state.vals.Us };
+  }
+  function applyPaste(){
+    const errEl = document.getElementById('clserr');
+    const p = parseString(document.getElementById('clspaste').value);
+    if (p.err){ errEl.textContent = p.err; return; }
+    errEl.textContent = '';
+    state.pasted = p.cls;
+    state.vals.Da = p.cls.Da[0];
+    state.vals.M = Array.isArray(p.cls.M) ? p.cls.M[0] : p.cls.M;
+    state.vals.I = p.cls.I; state.vals.C = p.cls.C;
+    state.vals.Us = p.cls.Us === null ? 'unset' : p.cls.Us;
+    render();
+  }
+  window.applyPaste = applyPaste;
+  function activeRules(){ return state.mode==='custom' ? state.custom.rules : undefined; }
+  function activeLabel(){
+    if(state.mode!=='custom') return "VES illustrative \u2014 Draft 2";
+    const p=state.custom;
+    return (p.id? p.id+" \u00b7 ":"")+(p.name||"Organisational policy")+(p.owner?" \u00b7 "+p.owner:"");
+  }
+
+  const point=(cx,cy,r,a)=>{const q=(a-90)*Math.PI/180;return [cx+r*Math.cos(q),cy+r*Math.sin(q)];};
+  function annulus(r0,r1,a0,a1){
+    const p1=point(260,260,r1,a0),p2=point(260,260,r1,a1),p3=point(260,260,r0,a1),p4=point(260,260,r0,a0);
+    return `M ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} A ${r1} ${r1} 0 0 1 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)} L ${p3[0].toFixed(1)} ${p3[1].toFixed(1)} A ${r0} ${r0} 0 0 0 ${p4[0].toFixed(1)} ${p4[1].toFixed(1)} Z`;
+  }
+  function frag(code,x,y,s){
+    const f=FRAGS[code], i=f.indexOf('>'), j=f.lastIndexOf('</svg>');
+    return `<svg x="${(x-s/2).toFixed(1)}" y="${(y-s/2).toFixed(1)}" width="${s}" height="${s}" viewBox="0 0 48 48">${f.slice(i+1,j)}</svg>`;
+  }
+
+  function render(){
+    const c = clsOf();
+    const r = evaluate(c, activeRules());
+    const r0=86, r1=214;
+    const parts=[`<circle cx="260" cy="260" r="224" fill="#fff" stroke="none"/>`];
+    dims.forEach((d,i)=>{
+      const start=i*72-36, end=start+72;
+      const code = d.key==='Us' ? state.vals.Us : state.vals[d.key];
+      if(code==='unset'){
+        parts.push(`<path d="${annulus(r0,r1,start,end)}" fill="#FFFFFF" stroke="#8A8A8E" stroke-width="2.4" stroke-dasharray="9 8"/>`);
+        const [gx,gy]=point(260,260,151,(start+end)/2);
+        parts.push(`<text x="${gx}" y="${gy-2}" text-anchor="middle" font-size="24" font-weight="800" fill="#8A8A8E">\u2014</text>`);
+        parts.push(`<text x="${gx}" y="${gy+20}" text-anchor="middle" font-size="11" font-weight="700" fill="#8A8A8E">USE UNSET</text>`);
+      } else {
+        parts.push(`<path d="${annulus(r0,r1,start,end)}" fill="${FILL[TIERS[code]]}" stroke="none"/>`);
+        const [gx,gy]=point(260,260,155,(start+end)/2);
+        parts.push(frag(code,gx,gy-6,62));
+        const [cx2,cy2]=point(260,260,106,(start+end)/2);
+        parts.push(`<text x="${cx2.toFixed(1)}" y="${cy2.toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="${TIERS[code]==='red'?'#FFFFFF':'#1A1A1E'}">${code}</text>`);
+      }
+      const sA=point(260,260,r0,start), sB=point(260,260,r1,start);
+      parts.push(`<line x1="${sA[0].toFixed(1)}" y1="${sA[1].toFixed(1)}" x2="${sB[0].toFixed(1)}" y2="${sB[1].toFixed(1)}" stroke="#1A1A1E" stroke-width="2.2"/>`);
+      const [lx,ly]=point(260,260,238,(start+end)/2);
+      parts.push(`<text x="${lx.toFixed(1)}" y="${(ly+4).toFixed(1)}" text-anchor="middle" font-size="14" font-weight="800" fill="#A9A9AF">${d.key}</text>`);
+    });
+    parts.push(`<circle cx="260" cy="260" r="${r1}" fill="none" stroke="#1A1A1E" stroke-width="2.2"/>`);
+
+    let cf='#1A1A1E', cl='NO VERDICT', cs='USE NOT SET', cc='#FFFFFF';
+    let mean='';
+    if(c.Us===null){
+      const poss=r.possible.length
+        ? 'Could qualify under '+r.possible.map(p=>p.id+' (Us: '+(p.usAllowed==='*'?'any':p.usAllowed.join('/'))+')').join(', ')+'.'
+        : 'No policy rule admits this capability at any Use.';
+      mean='Capability classification \u2014 no verdict attaches. '+poss;
+    } else if(r.kind==='allowed'){
+      cf='#3E8E5A'; cl='ALLOWED'; cs=r.matched.map(m=>m.id).join(' \u00b7 ');
+      const extra=r.allMatched.filter(m=>!r.matched.includes(m));
+      mean='Matches '+r.matched.map(m=>m.id+' \u00b7 '+esc(m.name)).join('; ')+'.'+
+        (extra.length?' Also matches '+extra.map(m=>m.id).join(', ')+' \u2014 by approval.':'');
+    } else if(r.kind==='approval'){
+      cf='#E8A33D'; cl='APPROVAL'; cs=r.matched.map(m=>m.id).join(' \u00b7 '); cc='#1A1A1E';
+      mean='Matches '+r.matched.map(m=>m.id+' \u00b7 '+esc(m.name)).join('; ')+' \u2014 by approval.';
+    } else {
+      cf='#C4392F'; cl='NOT ALLOWED'; cs='NO RULE ADMITS';
+      mean='Matches no permitted rule in this policy.';
+    }
+    parts.push(`<circle cx="260" cy="260" r="78" fill="${cf}" stroke="#F2F2F4" stroke-width="2.6"/>`);
+    parts.push(`<text x="260" y="${cl.length>9?258:256}" text-anchor="middle" font-size="${cl.length>9?15:19}" font-weight="800" fill="${cc}">${cl}</text>`);
+    parts.push(`<text x="260" y="280" text-anchor="middle" font-size="10.5" font-weight="700" fill="${cc}" opacity="0.85">${cs}</text>`);
+    document.getElementById('obj').innerHTML = parts.join('');
+    document.getElementById('stringline').textContent =
+      (c.Us===null?'Capability: ':'Deployment: ') + stringOf(c) +
+      '  \u2014  ' + activeLabel();
+    document.getElementById('meanline').textContent = mean;
+    document.getElementById('loadedline').textContent =
+      state.pasted ? 'Loaded: ' + stringOf(c) : '';
+
+    // policy side
+    const src = activeRules() || POLICY;
+    const ruleMap = {}; src.forEach(p=>{ ruleMap[p.id]=p.rule; });
+    const rows = r.rows.map(row=>{
+      const decider = !!(r.matched && r.matched.includes(row));
+      const nota = ['Da','M','I','C','Us'].map(d=>{
+        const v=ruleMap[row.id][d]; return d+'{'+(v==='*'?'*':v.join('/'))+'}';
+      }).join(' \u00b7 ');
+      const fails = ['Da','M','I','C','Us'].filter(d=>row.cells[d]==='fail')
+        .map(d=>{
+          const got = d==='Da' ? c.Da.join('+')
+                    : d==='M' ? (Array.isArray(c.M)?c.M.join('+'):c.M) : c[d];
+          return d + '{' + got + '}';
+        });
+      const failline = (!row.match && c.Us!==null && fails.length)
+        ? `<div class="fails">fails: ${fails.join(' \u00b7 ')} \u2014 not admitted by this rule</div>` : '';
+      return `<div class="rulerow${row.match?' hit':''}">
+        <div class="rulehead"><span class="mark">${row.match?'\u2713':'\u00d7'}</span>
+        <b>${esc(row.id)} \u00b7 ${esc(row.name)}</b>
+        <span class="action ${row.verdict}">Action \u00b7 ${row.verdict==='allowed'?'Permitted':'By approval'}</span>
+        ${decider && c.Us!==null ? '<span class="decides">DECIDES</span>' : ''}</div>
+        <div class="rn">${nota}</div>${failline}</div>`;
+    }).join('');
+    document.getElementById('rules').innerHTML = rows;
+    renderQuick();
+  }
+
+  function toggleLoader(){
+    const l=document.getElementById('loader');
+    l.style.display = l.style.display==='block' ? 'none' : 'block';
+  }
+  function syncChoose(){
+    const sel=document.getElementById('polchoose');
+    let h='<option value="ves">VES illustrative \u2014 Draft 2</option>';
+    if(state.custom) h+='<option value="custom">'+esc((state.custom.id?state.custom.id+' \u00b7 ':'')+(state.custom.name||'Organisational policy'))+'</option>';
+    sel.innerHTML=h; sel.value=state.mode;
+  }
+  function useVES(){ state.mode='ves'; state.custom=null;
+    document.getElementById('polerr').textContent=''; syncChoose(); render(); }
+  function applyPolicyJSON(){
+    const errEl=document.getElementById('polerr');
+    let o; try{ o=JSON.parse(document.getElementById('poljson').value); }
+    catch(e){ errEl.textContent='Invalid JSON.'; return; }
+    const p=o.policy||o;
+    if(!p||!Array.isArray(p.rules)||!p.rules.length){ errEl.textContent='No rules found.'; return; }
+    const rules=[];
+    for(let i=0;i<p.rules.length;i++){
+      const r=p.rules[i], set=r.set||r.rule, v=r.action||r.verdict;
+      if(!set||v!=='allowed'&&v!=='approval'){ errEl.textContent='Rule '+(i+1)+': bad shape.'; return; }
+      const rs={};
+      for(const d of ['Da','M','I','C','Us']){
+        const vals=set[d];
+        if(vals==='*'){ rs[d]='*'; continue; }
+        if(!Array.isArray(vals)||!vals.length){ errEl.textContent='Rule '+(i+1)+': '+d+' empty.'; return; }
+        for(const cde of vals) if(!REGISTRYC[d].includes(cde)){ errEl.textContent='Rule '+(i+1)+': unknown '+d+' code '+cde; return; }
+        rs[d]=vals.slice();
+      }
+      rules.push({ id:'R'+(i+1), name:r.name||('Rule '+(i+1)), rule:rs, verdict:v });
+    }
+    state.custom={ rules, id:p.id||null, name:p.name||null, owner:p.owner||null };
+    state.mode='custom'; errEl.textContent='';
+    document.getElementById('loader').style.display='none';
+    syncChoose();
+    render();
+  }
+  window.toggleLoader=toggleLoader; window.useVES=useVES; window.applyPolicyJSON=applyPolicyJSON;
+
+  function renderQuick(){
+    const box=document.getElementById('quick');
+    box.innerHTML = dims.map(d=>{
+      const chips = d.codes.map(code=>{
+        if(code==='unset')
+          return `<button type="button" class="qchip unsetchip${state.vals.Us==='unset'?' sel':''}" onclick="pickQuick('Us','unset')" aria-label="Use unset"><span class="qdash">\u2014</span><div class="qc">unset</div></button>`;
+        const sel = state.vals[d.key]===code;
+        return `<button type="button" class="qchip${sel?' sel':''}" onclick="pickQuick('${d.key}','${code}')" aria-label="${code}">${CHIPFR[code]}<div class="qc">${code}</div></button>`;
+      }).join('');
+      return `<div class="qgroup"><div class="qlabel">${d.key}</div><div class="qchips">${chips}</div></div>`;
+    }).join('');
+  }
+  function pickQuick(dk, code){
+    state.vals[dk] = code;
+    state.pasted = null;
+    document.getElementById('loadedline').textContent = '';
+    render();
+  }
+  window.pickQuick = pickQuick;
+
+  document.getElementById('polchoose').addEventListener('change',(e)=>{
+    if(e.target.value==='ves'){ state.mode='ves'; }
+    else if(state.custom){ state.mode='custom'; }
+    render();
+  });
+  syncChoose();
+  render();
+})();
+</script>
+</body>
+</html>
