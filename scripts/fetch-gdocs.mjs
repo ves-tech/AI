@@ -17,9 +17,16 @@
 //   3. Tables have no <thead>/<th> and their cells contain images and
 //      headings, so they can't become GFM pipe tables.
 
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync, unlinkSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import path from 'node:path';
 import TurndownService from 'turndown';
 import domino from '@mixmark-io/domino';
+// Single source of truth for the deployment base, so image URLs can't drift
+// out of sync with astro.config.mjs.
+import astroConfig from '../astro.config.mjs';
+
+const BASE = (astroConfig.base || '/').replace(/\/$/, '');
 
 const DOCS = [
   {
@@ -32,6 +39,10 @@ const DOCS = [
     // dropped at sync rather than published. Nothing is changed in the Google
     // Doc itself. Set to null to publish the whole document.
     truncateAt: 'DRAFT1',
+    // Inline base64 images are extracted here and referenced by URL. Without
+    // this the markdown is ~3.2 MB, 98% of it base64, rewritten on every
+    // build — a new multi-megabyte blob in git each time it's committed.
+    imageDir: './public/doc-images/damicus',
   },
   // Add more { id, outFile, title } entries here as needed.
 ];
@@ -58,7 +69,7 @@ function parseClassStyles(html) {
  * Everything else in the stylesheet is page-layout chrome we don't want.
  */
 function resolveFormatting(doc, classStyles) {
-  for (const el of [...doc.querySelectorAll('[class]')]) {
+  for (const el of Array.from(doc.querySelectorAll('[class]'))) {
     const decls = {};
     for (const cls of el.getAttribute('class').split(/\s+/)) {
       Object.assign(decls, classStyles.get(cls) || {});
@@ -94,7 +105,7 @@ function resolveFormatting(doc, classStyles) {
   }
 
   // The classes have served their purpose and reference a stylesheet we drop.
-  for (const el of [...doc.querySelectorAll('[class]')]) el.removeAttribute('class');
+  for (const el of Array.from(doc.querySelectorAll('[class]'))) el.removeAttribute('class');
 }
 
 /**
@@ -103,7 +114,7 @@ function resolveFormatting(doc, classStyles) {
  * silently publishing (or silently cutting) the wrong thing.
  */
 function truncateAtMarker(doc, marker) {
-  const candidates = [...doc.querySelectorAll('p, h1, h2, h3, h4, h5, h6')];
+  const candidates = Array.from(doc.querySelectorAll('p, h1, h2, h3, h4, h5, h6'));
   const hit = candidates.find(
     (el) => (el.textContent || '').replace(/\s+/g, ' ').trim() === marker
   );
@@ -116,6 +127,67 @@ function truncateAtMarker(doc, marker) {
   while (node.nextSibling) node.parentNode.removeChild(node.nextSibling);
   node.parentNode.removeChild(node);
   return true;
+}
+
+/**
+ * Replace inline base64 images with URLs to real files.
+ *
+ * Filenames are content-addressed — the hash of the decoded bytes — so the
+ * same image always lands on the same name. That makes the sync idempotent:
+ * an unchanged image produces an identical filename and an identical
+ * reference, so nothing in the markdown or on disk changes between builds.
+ * (Sequential names would renumber everything after any inserted image.)
+ *
+ * Files are only written when absent, and orphans — files no longer
+ * referenced by the document — are removed, so the directory tracks the doc
+ * exactly rather than accumulating every image the doc has ever contained.
+ */
+function extractImages(doc, imageDir) {
+  mkdirSync(imageDir, { recursive: true });
+  const referenced = new Set();
+  let written = 0;
+  let repaired = 0;
+
+  for (const img of Array.from(doc.querySelectorAll('img'))) {
+    const src = img.getAttribute('src') || '';
+    const m = src.match(/^data:image\/([a-zA-Z0-9.+-]+);base64,(.+)$/);
+    if (!m) continue;
+
+    const ext = m[1].toLowerCase() === 'jpeg' ? 'jpg' : m[1].toLowerCase();
+    const bytes = Buffer.from(m[2], 'base64');
+    const name = `${createHash('sha256').update(bytes).digest('hex').slice(0, 10)}.${ext}`;
+    const file = path.join(imageDir, name);
+
+    referenced.add(name);
+    // Only write when the file is missing or its bytes don't match the hash
+    // its name asserts. Rewriting identical bytes every run would churn
+    // mtimes and defeat the point of hashing; skipping the integrity check
+    // would leave a truncated or corrupted file in place forever.
+    let needsWrite = true;
+    if (existsSync(file)) {
+      const onDisk = readFileSync(file);
+      needsWrite = !onDisk.equals(bytes);
+      if (needsWrite) repaired++;
+    }
+    if (needsWrite) {
+      writeFileSync(file, bytes);
+      written++;
+    }
+
+    // imageDir is under public/, which Astro serves from the site root.
+    const urlPath = imageDir.replace(/^\.?\/?public\/?/, '');
+    img.setAttribute('src', `${BASE}/${urlPath}/${name}`.replace(/\/{2,}/g, '/'));
+  }
+
+  let pruned = 0;
+  for (const existing of readdirSync(imageDir)) {
+    if (!referenced.has(existing)) {
+      unlinkSync(path.join(imageDir, existing));
+      pruned++;
+    }
+  }
+
+  return { total: referenced.size, written, repaired, pruned };
 }
 
 const turndown = new TurndownService({ headingStyle: 'atx' });
@@ -157,20 +229,47 @@ for (const doc of DOCS) {
 
     resolveFormatting(document, classStyles);
 
+    if (doc.imageDir) {
+      const { total, written, repaired, pruned } = extractImages(document, doc.imageDir);
+      console.log(
+        `  ${total} images -> ${doc.imageDir} ` +
+        `(${written - repaired} new, ${repaired} repaired, ` +
+        `${total - written} unchanged, ${pruned} pruned)`
+      );
+    }
+
     const body = document.body ? document.body.innerHTML : html;
     const markdown = turndown.turndown(body).trim();
+
+    // Only move the timestamp when the document itself changed. Otherwise a
+    // rebuild would rewrite the file for no reason and show up as a diff in
+    // every working tree.
+    let lastSynced = new Date().toISOString();
+    let unchanged = false;
+    if (existsSync(doc.outFile)) {
+      const prev = readFileSync(doc.outFile, 'utf8');
+      const prevBody = prev.replace(/^---\n[\s\S]*?\n---\n/, '');
+      if (prevBody === markdown) {
+        unchanged = true;
+        lastSynced = (prev.match(/^lastSynced: "([^"]*)"/m) || [, lastSynced])[1];
+      }
+    }
 
     const frontmatter = [
       '---',
       `title: "${doc.title}"`,
       `sourcedFrom: "https://docs.google.com/document/d/${doc.id}/edit"`,
-      `lastSynced: "${new Date().toISOString()}"`,
+      `lastSynced: "${lastSynced}"`,
       '---',
       '',
     ].join('\n');
 
     writeFileSync(doc.outFile, frontmatter + markdown);
-    console.log(`Synced ${doc.title} -> ${doc.outFile}`);
+    console.log(
+      unchanged
+        ? `Synced ${doc.title} -> ${doc.outFile} (unchanged)`
+        : `Synced ${doc.title} -> ${doc.outFile} (updated)`
+    );
   } catch (err) {
     console.warn(
       `Warning: could not sync "${doc.title}" from Google Docs (${err.message}). ` +
