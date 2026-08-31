@@ -5,51 +5,51 @@
 /* Nocturne — design-system tokens and component classes. This file is the source of truth for the system's look; retune it here and see readme.md. */
 
 :root {
-  --color-bg: #161826;
-  --color-surface: #232532;
-  --color-text: #e9e9ed;
-  --color-accent: #9184d9; /* review round 7 (Barron): the accent moves to
+  --color-bg: #161a1e;
+  --color-surface: #22262b;
+  --color-text: #e7eaed;
+  --color-accent: #7995b3; /* review round 7 (Barron): the accent moves to
      the product's blurple — OKLCH hue 289.2, the hue of the app's own Pro
      accent (#9a8fe0, --om-accent-pro) — at the same lightness the steel
      accent held (L 0.660, so the documented ratios survive) and chroma
      in the product blurple's own range (its token sits at C 0.118; the
      accent takes 0.125, from the old steel's 0.030):
      the accent now reads as an accent rather than another neutral. */
-  --color-accent-2: #a7a1db; /* the machine-derived stand-in follows: same
+  --color-accent-2: #98acc0; /* the machine-derived stand-in follows: same
      hue, same L 0.734, chroma at the same 2:3 proportion it held */
-  --color-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
+  --color-divider: color-mix(in srgb, #e7eaed 16%, transparent);
 
   /* Tonal ramps — generated in OKLCH on one shared lightness scale, so the
      same step of any role matches the others in visual value. */
-  --color-neutral-100: #f3f5fe;
-  --color-neutral-200: #e4e7f5;
-  --color-neutral-300: #cfd3e5;
-  --color-neutral-400: #b2b6ca;
-  --color-neutral-500: #9397ab;
-  --color-neutral-600: #75798c;
-  --color-neutral-700: #595d6c;
-  --color-neutral-800: #3f424d;
-  --color-neutral-900: #292b31;
+  --color-neutral-100: #f3f6f9;
+  --color-neutral-200: #e5e8ec;
+  --color-neutral-300: #d1d4d8;
+  --color-neutral-400: #b4b7bb;
+  --color-neutral-500: #95989c;
+  --color-neutral-600: #777a7e;
+  --color-neutral-700: #5b5e61;
+  --color-neutral-800: #404346;
+  --color-neutral-900: #292b2e;
 
-  --color-accent-100: #f5f4ff;
-  --color-accent-200: #e7e5fe;
-  --color-accent-300: #d2cefd;
-  --color-accent-400: #b5abfc;
-  --color-accent-500: #968ae0;
-  --color-accent-600: #796cbf;
-  --color-accent-700: #5d5294;
-  --color-accent-800: #423a6a;
-  --color-accent-900: #2b2741;
+  --color-accent-100: #f2f6fa;
+  --color-accent-200: #e1e9f2;
+  --color-accent-300: #c7d6e7;
+  --color-accent-400: #9fbad7;
+  --color-accent-500: #7e9bb9;
+  --color-accent-600: #627d9a;
+  --color-accent-700: #4a6077;
+  --color-accent-800: #344455;
+  --color-accent-900: #242c35;
 
-  --color-accent-2-100: #f5f4ff;
-  --color-accent-2-200: #e7e5fe;
-  --color-accent-2-300: #d2cefd;
-  --color-accent-2-400: #b5afe8;
-  --color-accent-2-500: #9690c9;
-  --color-accent-2-600: #7972a9;
-  --color-accent-2-700: #5c5783;
-  --color-accent-2-800: #423e5d;
-  --color-accent-2-900: #2b293a;
+  --color-accent-2-100: #f2f6fa;
+  --color-accent-2-200: #e1e9f2;
+  --color-accent-2-300: #c7d6e7;
+  --color-accent-2-400: #a6b9ce;
+  --color-accent-2-500: #889aaf;
+  --color-accent-2-600: #6a7d90;
+  --color-accent-2-700: #515f6f;
+  --color-accent-2-800: #3a444f;
+  --color-accent-2-900: #262c32;
 
   /* Deck section-divider ground — review round 3: saturation as presence.
      Dividers take a saturated deep indigo (hue 277, the neutral ramp's own
@@ -57,9 +57,9 @@
      round-7 blurple raised it past the ground's) with a lighter bloom and
      a ghost tint of the same hue, while the slide grounds stay
      desaturated. Deck-scale fills only — not interface colors. */
-  --color-section: #262a60;
-  --color-section-glow: #353b80;
-  --color-section-ghost: #4c5397;
+  --color-section: #213346;
+  --color-section-glow: #2f465e;
+  --color-section-ghost: #465d75;
 
   --font-heading: "Inter", system-ui, sans-serif;
   --font-heading-weight: 500;
@@ -78,9 +78,9 @@
 
   /* Elevation — derived from the ground: soft ink-tinted shadows on a
      light theme, a hairline edge + ambient darkness on a dark one. */
-  --shadow-sm: 0 0 0 1px #3f424d;
-  --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgba(0,0,0,0.55);
-  --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0,0,0,0.65);
+  --shadow-sm: 0 0 0 1px #404346;
+  --shadow-md: 0 0 0 1px #5b5e61, 0 6px 18px rgba(0,0,0,0.55);
+  --shadow-lg: 0 0 0 1px #95989c, 0 16px 40px rgba(0,0,0,0.65);
 }
 
 body {
@@ -207,7 +207,7 @@ textarea.input { min-height: 90px; resize: vertical; }
   display: flex; flex-direction: column; gap: var(--space-2);
   padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface);
 }
-.card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); }
+.card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-500); }
 .card-title {
   font-family: var(--font-heading); font-weight: var(--font-heading-weight);
   font-size: 17px; line-height: 1.2;
@@ -342,7 +342,9 @@ a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 }
 .site-nav a { color: var(--color-neutral-300); }
 .site-nav a:hover { color: var(--color-neutral-100); }
-.site-nav a[aria-current="page"] { color: var(--color-accent-300); }
+/* Deliberately neutral, not accent: the accent is reserved for the tag,
+   the headline and the buttons. See the "fewer places" decision. */
+.site-nav a[aria-current="page"] { color: var(--color-neutral-100); }
 
 main { display: block; }
 
