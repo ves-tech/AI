@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DamicusExplorer from '../../components/islands/DamicusExplorer.jsx';
+---
+<BaseLayout title="Framework Explorer" description="Browse the Da-M-I-C-Us dimensions and codes interactively.">
+  <h1>Framework Explorer</h1>
+  <p>Click a dimension to see its codes and definitions.</p>
+  <DamicusExplorer client:load />
+</BaseLayout>

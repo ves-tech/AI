@@ -1,0 +1,536 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import { withBase } from '../lib/base';
+
+const icon = (name) => withBase(`Da-M-I-C-Us/damicus-icons-png/${name}.png`);
+
+// The full Da-M-I-C-Us document, linked from several places on this page.
+const FULL_DOC =
+  'https://docs.google.com/document/d/1UgIfWKZOpVCDFoNGQE-uYR9_gIEDzRESEkAuGw0gh0k/edit?tab=t.hxcmncevec8l';
+const ONE_PAGER = withBase('Da-M-I-C-Us/one-page/Da-M-I-C-Us Summary (standalone).html');
+
+// Anchors for this page's own sections. Deliberately not in Nav.astro —
+// they only resolve here.
+const sections = [
+  { href: '#damicus', label: 'Da-M-I-C-Us' },
+  { href: '#tools', label: 'Tools' },
+  { href: '#webinars', label: 'Webinars' },
+];
+
+const workedExample = [
+  { icon: 'WD', title: 'WD · Web-collected data', note: 'Rights not individually cleared' },
+  { icon: 'OM', title: 'OM · Open model', note: 'Permissively licensed weights' },
+  { icon: 'SI', title: 'SI · Self-managed', note: 'Inference on your own machines' },
+  { icon: 'OC', title: 'OC · Open code', note: 'Surrounding software is open' },
+  { icon: 'unset', title: 'Use · unset', note: 'A capability class — no verdict attaches', muted: true },
+];
+
+const dimensions = [
+  {
+    icon: 'PD', name: 'Data', abbr: '(Da)', codes: 'PD LD ND WD UD',
+    question: 'What was the model trained on, and are those rights cleared for this use?',
+  },
+  {
+    icon: 'OM', name: 'Model', abbr: '(M)', codes: 'PM OM CM RM',
+    question: 'Who owns or licenses the weights, and on what terms are they available?',
+  },
+  {
+    icon: 'SI', name: 'Infrastructure', abbr: '(I)', codes: 'SI EI DI MI',
+    question: 'Where does inference run — your machines, the edge, or someone else’s service?',
+  },
+  {
+    icon: 'OC', name: 'Code', abbr: '(C)', codes: 'PC OC CC RC UC',
+    question: 'What is the licence status of the surrounding software and pipeline?',
+  },
+  {
+    icon: 'IU', name: 'Use', abbr: '(Us)', codes: 'BU PU IU DU',
+    question: 'What is it actually being used for on this show? Leave it unset and you have a capability class, not a deployment.',
+  },
+];
+
+// Paths corrected: three of these omitted the Da-M-I-C-Us/ prefix in the
+// original index.html and 404'd on the deployed site.
+const tools = [
+  {
+    kicker: 'Guided · r4', title: 'Classifier',
+    href: withBase('Da-M-I-C-Us/classifier/damicus-v2_classifier_r4.html'),
+    body: 'Answer the questions and the five-code string builds as you go, with a printable classification card at the end.',
+  },
+  {
+    kicker: 'Normative · r10', title: 'Policy Maker',
+    href: withBase('Da-M-I-C-Us/classifier/damicus-v2_policymaker_r10.html'),
+    body: 'Build an organisation’s rule list — permitted, by approval, refused — and export it as JSON the other tools can read.',
+  },
+  {
+    kicker: 'Exploration shell', title: 'Compare',
+    href: withBase('Da-M-I-C-Us/classifier/index.html'),
+    body: 'What it is on the left, what the organisation permits on the right, and the verdict in the circle between them.',
+  },
+];
+
+const GENAI_RESOURCES = 'https://www.vesglobal.org/gen-ai-resources-page/';
+
+const webinars = [
+  { n: '01', title: 'Real Applications of Generative Artificial Intelligence in Visual Effects', note: 'What is in production today, shown by the people running it.' },
+  { n: '02', title: 'Generative Artificial Intelligence in VFX Software: Now and In the Future', note: 'How the tool vendors are building it into the pipeline.' },
+  { n: '03', title: 'How Generative Artificial Intelligence Might Affect Visual Effects Now and In the Future', note: 'The longer view: craft, employment and the shape of the work.' },
+];
+
+const contrastCase = [
+  { icon: 'PD', code: 'PD', label: 'Owned data' },
+  { icon: 'PM', code: 'PM', label: 'Owned weights' },
+  { icon: 'SI', code: 'SI', label: 'Self-managed' },
+  { icon: 'PC', code: 'PC', label: 'Proprietary code' },
+];
+---
+
+<BaseLayout
+  title="Da-M-I-C-Us"
+  description="A common way to describe an AI tool on a show — the VES Technology Committee's Da-M-I-C-Us classification scheme."
+>
+  <div class="page-ground">
+    <nav class="section-nav" aria-label="On this page">
+      {sections.map((s) => <a href={s.href}>{s.label}</a>)}
+    </nav>
+
+    <section class="hero">
+      <div>
+        <span class="tag tag-outline hero-tag">Generative AI working group</span>
+        <h1 class="hero-title">
+          <span>A common way to</span>
+          <span>describe an AI tool</span>
+          <span class="accent">on a show.</span>
+        </h1>
+        <p class="hero-lede">
+          <b>Da-M-I-C-Us</b> is a classification scheme from the VES Technology
+          Committee’s generative AI work: five dimensions — Data, Model, Infrastructure,
+          Code and Use — that let a studio, a vendor and a client say precisely what an AI
+          deployment <i>is</i> before anyone argues about whether it is allowed. The factual
+          classification stays separate from the policy that judges it.
+        </p>
+        <div class="btn-row">
+          <a href={ONE_PAGER} target="_blank" rel="noopener" class="btn btn-primary">One-page reference sheet</a>
+          <a href={FULL_DOC} target="_blank" rel="noopener" class="btn btn-ghost">Read the full document</a>
+        </div>
+        <p class="fineprint">
+          Da-M-I-C-Us v1.0, draft 2 · working material, not a ratified VES standard.
+        </p>
+      </div>
+
+      <figure class="card elev-md figure-card">
+        <figcaption>
+          <span>Worked example</span>
+          <span class="figcap-code">WD-OM-SI-OC-unset</span>
+        </figcaption>
+        <div class="example-rows">
+          {workedExample.map((row) => (
+            <div class="example-row">
+              <img src={icon(row.icon)} alt="" class:list={['example-icon', { muted: row.muted }]} />
+              <span>
+                <b class:list={['example-title', { muted: row.muted }]}>{row.title}</b>
+                <span class="example-note">{row.note}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </figure>
+    </section>
+
+    <section id="damicus" class="band">
+      <div class="band-head">
+        <h2>The five dimensions</h2>
+        <span class="band-meta">5 axes · 22 codes · v1.0 draft 2</span>
+      </div>
+      <div class="rule"></div>
+
+      <div class="card table-card">
+        <table class="table dimension-table">
+          <thead>
+            <tr>
+              <th class="col-icon"></th>
+              <th class="col-dim">Dimension</th>
+              <th class="col-codes">Codes</th>
+              <th>The question it answers</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dimensions.map((d) => (
+              <tr>
+                <td><img src={icon(d.icon)} alt="" class="table-icon" /></td>
+                <td>{d.name} <span class="abbr">{d.abbr}</span></td>
+                <td>{d.codes}</td>
+                <td>{d.question}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="fineprint wide">
+        A verdict attaches to the full five-code string, never to a single code. Four-part strings
+        (Use left unset) describe a capability; the fifth part makes it a deployment that policy can judge.
+      </p>
+    </section>
+
+    <section id="tools" class="band">
+      <h2 class="band-title">Prototype tools</h2>
+      <div class="rule"></div>
+      <div class="tool-grid">
+        {tools.map((t) => (
+          <a class="card tool-card" href={t.href} target="_blank" rel="noopener">
+            <span class="card-kicker">{t.kicker}</span>
+            <h3 class="card-title">{t.title}</h3>
+            <p class="card-body">{t.body}</p>
+          </a>
+        ))}
+      </div>
+      <p class="fineprint wide">
+        Prototypes from the working group, offline single files. Verdicts shown use draft 2’s illustrative internal policy; an organisation substitutes its own.
+      </p>
+    </section>
+
+    <section id="webinars" class="webinars">
+      <div class="webinars-inner">
+        <div>
+          <span class="kicker">GenAI webinars</span>
+          <h2>Where the thinking came from</h2>
+          <p class="webinars-lede">
+            The classification work follows a run of public sessions on what generative AI
+            is actually doing inside visual effects — in artists’ hands, in the
+            software, and in the contracts around both.
+          </p>
+          <div class="btn-row">
+            <a href={GENAI_RESOURCES} target="_blank" rel="noopener" class="btn btn-primary on-section">GenAI resources page</a>
+            <a href="https://vesglobal.org/technology-committee-activities/" target="_blank" rel="noopener" class="btn btn-ghost on-section">Committee activities</a>
+          </div>
+        </div>
+        <ol class="webinar-list">
+          {webinars.map((w) => (
+            <li>
+              <span class="webinar-n">{w.n}</span>
+              <span>
+                <a href={GENAI_RESOURCES} target="_blank" rel="noopener" class="webinar-title">{w.title}</a>
+                <span class="webinar-note">{w.note}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="band closing">
+      <div class="closing-grid">
+        <div>
+          <h2>Two documents, one scheme</h2>
+          <p class="closing-lede">
+            Start with the one-page sheet if you need to classify something this afternoon.
+            Go to the full document for the definitions, the matching rules and the worked
+            examples — and to leave comments for the working group.
+          </p>
+          <div class="btn-row">
+            <a href={ONE_PAGER} target="_blank" rel="noopener" class="btn btn-primary">One-page sheet</a>
+            <a href={FULL_DOC} target="_blank" rel="noopener" class="btn btn-ghost">Full document (Google Docs)</a>
+          </div>
+        </div>
+        <figure class="card elev-md figure-card">
+          <figcaption class="bordered">
+            <span>Contrast case</span>
+            <span class="figcap-code">PD-PM-SI-PC-unset</span>
+          </figcaption>
+          <div class="contrast-grid">
+            {contrastCase.map((c) => (
+              <div class="contrast-cell">
+                <img src={icon(c.icon)} alt="" class="contrast-icon" />
+                <b>{c.code}</b>
+                <span>{c.label}</span>
+              </div>
+            ))}
+          </div>
+          <p class="contrast-note">
+            An in-house model on owned data — the same notation, a very different conversation.
+          </p>
+        </figure>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-ground {
+    background: radial-gradient(120% 60% at 12% 0%, #1e2135 0%, var(--color-bg) 62%);
+    min-height: 100vh;
+  }
+
+  .section-nav {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 14px 22.4px 0;
+    display: flex;
+    gap: 22.4px;
+    font-size: 14px;
+    flex-wrap: wrap;
+  }
+  .section-nav a { color: var(--color-neutral-400); }
+  .section-nav a:hover { color: var(--color-neutral-100); }
+
+  .hero {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 89.6px 22.4px 56px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+  }
+  .hero-tag { display: inline-block; margin-bottom: 22.4px; }
+  .hero-title {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: clamp(42px, 5.4vw, 76px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .hero-title span { display: block; }
+  .hero-title .accent { color: var(--color-accent); }
+  .hero-lede {
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 58ch;
+    margin: 22.4px 0 0;
+    color: var(--color-neutral-300);
+  }
+  .hero-lede b { font-weight: 500; color: var(--color-text); }
+
+  .btn-row { display: flex; gap: 11.2px; flex-wrap: wrap; margin-top: 22.4px; }
+
+  .fineprint {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-neutral-500);
+    margin: 16.8px 0 0;
+  }
+  .fineprint.wide { line-height: 1.6; }
+
+  /* --- Figure cards (worked example / contrast case) --- */
+  .figure-card { margin: 0; padding: 0; overflow: hidden; }
+  .figure-card figcaption {
+    padding: 11.2px 16.8px;
+    background: linear-gradient(to right, var(--color-divider), var(--color-divider) 80%, transparent)
+      bottom / 100% 1px no-repeat;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-neutral-400);
+    display: flex;
+    justify-content: space-between;
+    gap: 11.2px;
+    flex-wrap: wrap;
+  }
+  .figure-card figcaption.bordered {
+    background: none;
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .figcap-code { color: var(--color-accent-300); }
+
+  .example-row {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    padding: 11.2px 16.8px;
+  }
+  .example-row + .example-row { border-top: 1px solid var(--color-divider); }
+  .example-icon {
+    width: 44px; height: 44px; display: block;
+    border-radius: var(--radius-sm);
+  }
+  .example-icon.muted { opacity: 0.65; }
+  .example-title {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 17px;
+    display: block;
+    letter-spacing: -0.01em;
+  }
+  .example-title.muted { color: var(--color-neutral-500); }
+  .example-note { font-size: 13.5px; color: var(--color-neutral-500); }
+
+  /* --- Content bands --- */
+  .band { max-width: 1120px; margin: 0 auto; padding: 22.4px 22.4px 56px; }
+  .band-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16.8px;
+    flex-wrap: wrap;
+    margin-bottom: 22.4px;
+  }
+  .band h2, .band-title {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .band-title { margin-bottom: 22.4px; }
+  .band-meta { font-size: 13px; color: var(--color-neutral-500); }
+  .rule {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent);
+    margin-bottom: 22.4px;
+  }
+
+  .table-card { padding: 0; overflow: hidden; }
+  .dimension-table { table-layout: fixed; margin: 0; width: 100%; }
+  .dimension-table .col-icon { width: 68px; }
+  .dimension-table .col-dim { width: 22%; }
+  .dimension-table .col-codes { width: 16%; }
+  .table-icon { width: 40px; height: 40px; display: block; border-radius: var(--radius-sm); }
+  .abbr { color: var(--color-neutral-500); }
+
+  /* --- Tool cards (was style-hover in the design-tool export) --- */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16.8px;
+  }
+  .tool-card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    transition: box-shadow 140ms, background 140ms;
+  }
+  .tool-card:hover {
+    background: var(--color-accent-900);
+    box-shadow: 0 0 0 1px var(--color-accent-600), 0 6px 18px rgba(0, 0, 0, 0.55);
+  }
+  .tool-card .card-title { font-size: 21px; }
+
+  /* --- Webinars band --- */
+  .webinars {
+    background: radial-gradient(90% 120% at 8% 0%, var(--color-section-glow) 0%, var(--color-section) 58%);
+    color: var(--color-neutral-100);
+    padding: 67.2px 0;
+    margin-top: 22.4px;
+  }
+  .webinars-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 22.4px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    gap: 44.8px;
+    align-items: start;
+  }
+  .kicker {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent-300);
+    margin-bottom: 11.2px;
+  }
+  .webinars h2 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .webinars-lede {
+    font-size: 15.5px;
+    line-height: 1.6;
+    margin: 16.8px 0 0;
+    color: var(--color-accent-200);
+  }
+  .btn-primary.on-section { border-color: var(--color-accent-300); color: var(--color-accent-100); }
+  .btn-ghost.on-section { color: var(--color-accent-200); }
+
+  .webinar-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .webinar-list li {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 16.8px;
+    padding: 16.8px 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-neutral-100) 22%, transparent);
+  }
+  .webinar-list li:last-child {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-neutral-100) 22%, transparent);
+  }
+  .webinar-n {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 20px;
+    color: var(--color-accent-300);
+  }
+  .webinar-title {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 21px;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--color-neutral-100);
+    display: block;
+  }
+  .webinar-note {
+    display: block;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin-top: 5.6px;
+    color: var(--color-accent-200);
+  }
+
+  /* --- Closing band --- */
+  .closing { padding: 67.2px 22.4px; }
+  .closing-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 44.8px;
+    align-items: center;
+  }
+  .closing h2 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .closing-lede {
+    font-size: 15.5px;
+    line-height: 1.6;
+    max-width: 52ch;
+    margin: 16.8px 0 0;
+    color: var(--color-neutral-300);
+  }
+  .contrast-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
+  .contrast-cell {
+    padding: 16.8px 11.2px;
+    text-align: center;
+    display: grid;
+    gap: 8.4px;
+    justify-items: center;
+  }
+  .contrast-cell + .contrast-cell { border-left: 1px solid var(--color-divider); }
+  .contrast-icon { width: 46px; height: 46px; display: block; border-radius: var(--radius-sm); }
+  .contrast-cell b { font-family: var(--font-heading); font-weight: 500; font-size: 16px; }
+  .contrast-cell span { font-size: 12.5px; line-height: 1.4; color: var(--color-neutral-500); }
+  .contrast-note {
+    margin: 0;
+    padding: 11.2px 16.8px;
+    border-top: 1px solid var(--color-divider);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--color-neutral-500);
+  }
+
+  @media (max-width: 860px) {
+    .hero, .webinars-inner, .closing-grid { grid-template-columns: minmax(0, 1fr); gap: 33.6px; }
+    .hero { padding-top: 44.8px; }
+    .tool-grid { grid-template-columns: minmax(0, 1fr); }
+    .contrast-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .contrast-cell:nth-child(3) { border-left: none; }
+  }
+</style>

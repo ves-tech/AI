@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
+
+// This entry is (re)written by scripts/fetch-gdocs.mjs during the
+// prebuild step, so its content always reflects the latest Google Doc.
+const entry = await getEntry('docs', 'damicus-overview');
+const { Content } = await entry.render();
+---
+<BaseLayout title="Da-M-I-C-Us" description="A classification framework for AI solutions.">
+  <div class="doc-paper">
+    <article class="doc-content">
+    <Content />
+  </article>
+  </div>
+  {entry.data.lastSynced && (
+    <p class="doc-meta">Last synced from Google Docs: {entry.data.lastSynced}</p>
+  )}
+</BaseLayout>

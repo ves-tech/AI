@@ -1,0 +1,46 @@
+---
+// Single source of truth for the site's nav. Edit this list only —
+// every page picks it up automatically via BaseLayout.
+//
+// In-page anchors (#damicus, #tools, #webinars) deliberately live in
+// index.astro's own section nav, not here: they only resolve on the
+// homepage, so hoisting them site-wide would dead-link everywhere else.
+import { base, withBase } from '../lib/base';
+
+const links = [
+  { href: base, label: 'Home' },
+  { href: withBase('damicus/'), label: 'Da-M-I-C-Us' },
+  { href: withBase('damicus/explorer/'), label: 'Framework Explorer' },
+  { href: withBase('about/'), label: 'About' },
+  {
+    href: 'https://docs.google.com/document/d/1UgIfWKZOpVCDFoNGQE-uYR9_gIEDzRESEkAuGw0gh0k/edit?tab=t.hxcmncevec8l',
+    label: 'The draft standard',
+    external: true,
+  },
+];
+
+const currentPath = Astro.url.pathname;
+---
+<header class="site-header">
+  <div class="site-brand">
+    <img src={withBase('ves-logo.png')} alt="Visual Effects Society" />
+    <span class="rule"></span>
+    <span class="wordmark">Technology Committee · AI</span>
+  </div>
+  <nav class="site-nav" aria-label="Site">
+    <ul>
+      {links.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            aria-current={currentPath === link.href ? 'page' : undefined}
+            target={link.external ? '_blank' : undefined}
+            rel={link.external ? 'noopener' : undefined}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>
