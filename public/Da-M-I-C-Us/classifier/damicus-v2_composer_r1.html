@@ -66,6 +66,8 @@
   .btn:disabled:hover { background: var(--field); border-color: var(--rule); }
   .note { font-size: 12px; color: var(--faint); line-height: 1.5; margin-top: 12px; }
   .warn { color: var(--amber); }
+  .cardprev { background: #fff; border-radius: 8px; overflow: hidden; line-height: 0; }
+  .cardprev svg { width: 100%; height: auto; display: block; }
   .hr { height: 1px; background: var(--rule); margin: 16px 0; }
 </style>
 </head>
@@ -103,7 +105,16 @@
         </div>
         <div class="hr"></div>
         <div class="out">
-          <h2>Donuts</h2>
+          <h2>Card — icons and donuts in one image</h2>
+          <div id="cardprev" class="cardprev"></div>
+          <div class="btns">
+            <button class="btn" id="b-cpng" onclick="exportCard('png')">Download PNG</button>
+            <button class="btn" id="b-csvg" onclick="exportCard('svg')">Download SVG</button>
+          </div>
+        </div>
+        <div class="hr"></div>
+        <div class="out">
+          <h2>Donuts — on their own</h2>
           <div class="donuts">
             <div class="donutbox">
               <div id="donut"></div>
@@ -305,6 +316,149 @@ function iconRow(){
   return out;
 }
 
+// ---- card -------------------------------------------------------------
+// Matches the classifier's snapshot card: icons with titles on the left, the
+// two donuts on the right. The classifier lays its icons out on one fixed
+// row (x=60, step 110), which fits about seven tiles before it reaches the
+// donut. The composer can hold up to 22 codes, so the row scales and wraps.
+function embed(svgStr, x, y, wpx, hpx){
+  const i = svgStr.indexOf(">"), j = svgStr.lastIndexOf("</svg>");
+  const vb = svgStr.slice(0, i + 1).match(/viewBox="([^"]+)"/)[1];
+  return '<svg x="' + x + '" y="' + y + '" width="' + wpx + '" height="' + hpx +
+    '" viewBox="' + vb + '">' + svgStr.slice(i + 1, j) + "</svg>";
+}
+
+// Flatten the selection into the drawing order, marking separators and the
+// gaps between dimensions.
+function cardItems(){
+  const items = [];
+  DIMS.forEach((d, di) => {
+    if (di) items.push({ gap: true });
+    if (isAny(d)) { items.push({ code: null, label: "*", name: "any" }); return; }
+    const codes = chosen(d);
+    if (!codes.length) { items.push({ code: null, label: "—", name: "unset" }); return; }
+    codes.forEach((c, i) => {
+      if (i) items.push({ sepChar: sep() });
+      items.push({ code: c, label: c, name: NAMES[c] });
+    });
+  });
+  return items;
+}
+
+function buildCard(){
+  const F = "Helvetica Neue, Helvetica, Arial, sans-serif";
+  const Tt = (x, y, sz, txt, wgt, fill, anchor) =>
+    '<text x="' + x + '" y="' + y + '" font-family="' + F + '" font-size="' + sz +
+    '" font-weight="' + (wgt || 400) + '" fill="' + (fill || "#1A1A1E") +
+    '" text-anchor="' + (anchor || "start") + '">' + esc(txt) + "</text>";
+
+  let s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" width="1200" height="640">';
+  s += '<rect width="1200" height="640" fill="#FFFFFF"/>';
+  s += '<rect x="8" y="8" width="1184" height="624" rx="26" fill="none" stroke="#1A1A1E" stroke-width="4"/>';
+  s += Tt(60, 78, 28, "Da-M-I-C-Us", 700);
+  s += Tt(272, 78, 13, mode === "composite" ? "COMPOSITE CLASSIFICATION" : "PERMITTED SET", 700, "#9A9AA0");
+  s += Tt(1140, 78, 13, new Date().toISOString().slice(0, 10), 400, "#55555A", "end");
+
+  // --- left: icons with titles, scaled and wrapped to fit the column ---
+  const items = cardItems();
+  const X0 = 60, XMAX = 780, Y0 = 132, YMAX = 476;
+  // Counting tiles isn't enough — separators and inter-dimension gaps take
+  // real width, so simulate the wrap at each candidate size and keep the
+  // largest that still fits the column above the rule.
+  const metrics = (T) => ({ T, STEP: T + 14, SEPW: Math.round(T * 0.19),
+    GAPW: Math.round(T * 0.30), ROWH: T + 52 });
+  const layout = (m) => {
+    let x = X0, rows = 1;
+    for (const it of items){
+      if (it.gap) { x += m.GAPW; continue; }
+      if (it.sepChar) { x += m.SEPW; continue; }
+      if (x + m.STEP > XMAX) { x = X0; rows++; }
+      x += m.STEP;
+    }
+    return rows;
+  };
+  const CANDS = [96, 88, 80, 72, 64, 56, 48, 42, 38];
+  // Prefer the largest size that keeps the whole string on ONE row: a single
+  // tile orphaned on a second row reads worse than slightly smaller icons.
+  // Only when nothing fits on one row does it wrap, again at the largest size
+  // that stays above the rule.
+  let M = null;
+  for (const cand of CANDS){
+    const m = metrics(cand);
+    if (layout(m) === 1) { M = m; break; }
+  }
+  if (!M) for (const cand of CANDS){
+    M = metrics(cand);
+    if (Y0 + layout(M) * M.ROWH <= YMAX) break;
+  }
+  const { T, STEP, SEPW, GAPW, ROWH } = M;
+  let x = X0, y = Y0;
+  const newRow = () => { x = X0; y += ROWH; };
+  for (const it of items){
+    const w = it.gap ? GAPW : it.sepChar ? SEPW : STEP;
+    if (x + w > XMAX && !(it.gap || it.sepChar)) newRow();
+    if (it.gap) { x += GAPW; continue; }
+    if (it.sepChar){
+      s += Tt(x + SEPW / 2, y + T * 0.6, Math.round(T * 0.25), it.sepChar, 700, "#1A1A1E", "middle");
+      x += SEPW; continue;
+    }
+    s += embed(it.code === null ? TILES.UNSET : tileSvg(it.code), x, y, T, T);
+    s += Tt(x + T / 2, y + T + 17, Math.round(T * 0.135) + 2, it.label, 700, "#1A1A1E", "middle");
+    if (it.name) s += Tt(x + T / 2, y + T + 33, Math.round(T * 0.108) + 1.5, it.name, 400, "#55555A", "middle");
+    x += STEP;
+  }
+
+  // --- right: the two donuts ---
+  s += embed(donutSvg(250, true), 810, 108, 250, 250);
+  s += Tt(935, 388, 10.5, "Read clockwise from 12: Da · M · I · C · Us", 400, "#9A9AA0", "middle");
+  s += embed(flatSvg(84, true), 1078, 190, 84, 84);
+  s += Tt(1120, 294, 9.5, "fills only", 400, "#9A9AA0", "middle");
+
+  // --- bottom: the string and how to read it ---
+  s += '<line x1="60" y1="497" x2="1140" y2="497" stroke="#DCDCE0" stroke-width="2"/>';
+  const str = notationString();
+  s += Tt(60, 528, str.length > 58 ? 15 : 18.5, str, 700);
+  s += Tt(60, 552, 12, mode === "composite"
+    ? "Composite — several codes in one dimension mean the solution uses all of them."
+    : "Permitted set — several codes in one dimension mean any one of them qualifies; * admits any value.",
+    400, "#55555A");
+  s += Tt(60, 570, 12, "Da-M-I-C-Us v1.0 draft 2 · working material, not a ratified VES standard.", 400, "#55555A");
+
+  const leg = [["#FFFFFF", "Cleared or controlled", 60],
+               ["#E8A33D", "Terms or restrictions apply", 250],
+               ["#C4392F", "Rights uncertainty or delivery exposure", 500],
+               [null, mode === "composite" ? "Unset" : "Any value", 812]];
+  for (const [fill, label, lx] of leg){
+    s += fill === null
+      ? '<rect x="' + lx + '" y="588" width="20" height="20" rx="5" fill="#FFFFFF" stroke="#8A8A8E" stroke-width="2" stroke-dasharray="4 4"/>'
+      : '<rect x="' + lx + '" y="588" width="20" height="20" rx="5" fill="' + fill + '" stroke="#1A1A1E" stroke-width="2"/>';
+    s += Tt(lx + 28, 603, 10.5, label, 400, "#55555A");
+  }
+  s += Tt(1140, 603, 10, "VES Technology Committee", 400, "#9A9AA0", "end");
+  return s + "</svg>";
+}
+
+function exportCard(kind){
+  const svg = buildCard();
+  if (kind === "svg"){ downloadSVG(svg, fileBase() + "_card"); return; }
+  const blob = new Blob([svg], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const cv = document.createElement("canvas");
+    cv.width = 2400; cv.height = 1280;
+    const ctx = cv.getContext("2d");
+    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, 2400, 1280);
+    ctx.drawImage(img, 0, 0, 2400, 1280);
+    const a = document.createElement("a");
+    a.download = fileBase() + "_card.png";
+    a.href = cv.toDataURL("image/png"); a.click();
+    URL.revokeObjectURL(url);
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); alert("PNG export failed — the card SVG did not render."); };
+  img.src = url;
+}
+
 // ---- exports -----------------------------------------------------------
 function fileBase(){
   // '*' and '/' are illegal in filenames on Windows, so spell them out rather
@@ -385,8 +539,9 @@ function render(){
   document.getElementById("icons").innerHTML = iconRow();
   document.getElementById("donut").innerHTML = donutSvg(190, false);
   document.getElementById("flat").innerHTML = flatSvg(76, false);
+  document.getElementById("cardprev").innerHTML = buildCard();
 
-  for (const id of ["b-dsvg","b-dpng","b-fsvg","b-fpng","b-copy"])
+  for (const id of ["b-dsvg","b-dpng","b-fsvg","b-fpng","b-copy","b-cpng","b-csvg"])
     document.getElementById(id).disabled = !has;
 
   const multi = DIMS.filter((d) => chosen(d).length > 1);

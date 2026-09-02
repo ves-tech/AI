@@ -1,7 +1,7 @@
 ---
 title: "Da-M-I-C-Us Overview"
 sourcedFrom: "https://docs.google.com/document/d/1UgIfWKZOpVCDFoNGQE-uYR9_gIEDzRESEkAuGw0gh0k/edit"
-lastSynced: "2026-09-02T16:00:36.410Z"
+lastSynced: "2026-09-02T16:07:02.597Z"
 ---
 **<span style="color:#1a36b4"><strong>DRAFT2 (WIP)</strong></span>**
 
@@ -222,7 +222,7 @@ Classification classes name the recurring _shapes_ <span style="color:#1d1d1d">
 
 ### C7   Self-Hosted Adapted Model[\[e\]](#cmnt5)[\[f\]](#cmnt6)[\[g\]](#cmnt7)
 
-<span style="color:#1b2a9e"><strong>WD</strong></span><span style="color:#1b2a9e"><strong>+</strong></span><span style="color:#1b2a9e"><strong>PD-OM-SI-OC<br></strong></span><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 202.50px; height: 188.21px;"><img alt="" src="/AI/doc-images/damicus/c6ba889708.png" style="width: 857.65px; height: 414.55px; margin-left: -32.16px; margin-top: -95.28px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span>
+<span style="color:#1b2a9e"><strong>WD</strong></span><span style="color:#1b2a9e"><strong>+</strong></span><span style="color:#1b2a9e"><strong>PD-OM-SI-OC<br></strong></span><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 688.00px; height: 199.51px;"><img alt="" src="/AI/doc-images/damicus/28a9e921c8.png" style="width: 720.00px; height: 383.41px; margin-left: -19.00px; margin-top: -62.41px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span>
 
 **What it is.** <span style="color:#1d1d1d">An open base model adapted on proprietary data and self-hosted. A composite: open base plus proprietary adaptation.</span>
 
