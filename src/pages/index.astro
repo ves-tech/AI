@@ -87,7 +87,7 @@ const contrastCase = [
 
 <BaseLayout
   title="Da-M-I-C-Us"
-  description="A common way to describe an AI tool on a show — the VES Technology Committee's Da-M-I-C-Us classification scheme."
+  description="A common way to describe an AI tool for an organization — the VES Technology Committee's Da-M-I-C-Us classification scheme."
 >
   <div class="page-ground">
     <nav class="section-nav" aria-label="On this page">
@@ -100,7 +100,7 @@ const contrastCase = [
         <h1 class="hero-title">
           <span>A common way to</span>
           <span>describe an AI tool</span>
-          <span class="accent">on a show.</span>
+          <span class="accent">for an organization.</span>
         </h1>
         <p class="hero-lede">
           <b>Da-M-I-C-Us</b> is a classification scheme from the VES Technology
@@ -118,23 +118,6 @@ const contrastCase = [
         </p>
       </div>
 
-      <figure class="card elev-md figure-card">
-        <figcaption>
-          <span>Worked example</span>
-          <span class="figcap-code">WD-OM-SI-OC-unset</span>
-        </figcaption>
-        <div class="example-rows">
-          {workedExample.map((row) => (
-            <div class="example-row">
-              <img src={icon(row.icon)} alt="" class:list={['example-icon', { muted: row.muted }]} />
-              <span>
-                <b class:list={['example-title', { muted: row.muted }]}>{row.title}</b>
-                <span class="example-note">{row.note}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      </figure>
     </section>
 
     <section id="damicus" class="band">

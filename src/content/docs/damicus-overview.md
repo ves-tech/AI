@@ -1,7 +1,7 @@
 ---
 title: "Da-M-I-C-Us Overview"
 sourcedFrom: "https://docs.google.com/document/d/1UgIfWKZOpVCDFoNGQE-uYR9_gIEDzRESEkAuGw0gh0k/edit"
-lastSynced: "2026-08-31T13:19:25.822Z"
+lastSynced: "2026-09-02T16:00:36.410Z"
 ---
 **<span style="color:#1a36b4"><strong>DRAFT2 (WIP)</strong></span>**
 
@@ -174,7 +174,7 @@ Classification classes name the recurring _shapes_ <span style="color:#1d1d1d">
 
 <span style="color:#1b2a9e"><strong>LD-CM-MI-CC</strong></span><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 691.00px; height: 162.98px;"><img alt="" src="/AI/doc-images/damicus/3690755e62.png" style="width: 720.00px; height: 383.98px; margin-left: -16.00px; margin-top: -59.98px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span>
 
-**What it is.** As K<span style="color:#1d1d1d">1, but the provider documents or warrants a licensed or owned training corpus.</span>
+**What it is.** <span style="color:#1d1d1d">As C1, but the provider documents or warrants a licensed or owned training corpus.</span>
 
 **Typical instances.** <span style="color:#1d1d1d">“Commercially-safe” generative image and video tools; licensed voice synthesis; generators trained on stock or owned libraries.</span>
 
@@ -228,7 +228,7 @@ Classification classes name the recurring _shapes_ <span style="color:#1d1d1d">
 
 **Typical instances.** <span style="color:#1d1d1d">Studio LoRAs and fine-tunes of open models run on owned infrastructure.</span>
 
-**Key characteristic.** The deployment control of K<span style="color:#1d1d1d">3 plus a proprietary adaptation; the base model's provenance survives in the composite.</span>
+**Key characteristic.** <span style="color:#1d1d1d">The deployment control of C3 plus a proprietary adaptation; the base model's provenance survives in the composite.</span>
 
 ## 9   Common policy[\[h\]](#cmnt8)[\[i\]](#cmnt9) <span style="color:#1a36b4">&nbsp;classes</span>
 
@@ -308,11 +308,11 @@ Policy classes name the recurring _stances_ <span style="color:#1d1d1d">&nbsp;a
 
 ### <span style="color:#1a36b4">Partner / vendor guidelines (illustrative)</span>
 
-<span style="color:#1b2a9e"><strong>Rule 1: Da{PD/LD} M{*} I{*} C{OC/CC/PC} Us{*}</strong></span>
+<span style="color:#1b2a9e"><strong>Policy 1: Da{PD/LD} M{*} I{*} C{OC/CC/PC} Us{*}</strong></span>
 
-<span style="color:#1b2a9e"><strong>Rule 2: Da{*} M{*} I{*} C{OC/CC/PC} Us{BU/PU}</strong></span>
+<span style="color:#1b2a9e"><strong>Policy 2: Da{*} M{*} I{*} C{OC/CC/PC} Us{BU/PU}</strong></span>
 
-<span style="color:#1b2a9e"><strong>In class terms: </strong></span> <span style="color:#1b2a9e"><strong>rights-cleared-data terms (P5) for anything</strong></span>
+<span style="color:#1b2a9e"><strong>rights-cleared-data terms (P5) for anything</strong></span>
 
 <span style="color:#1b2a9e"><strong>reaching delivered material; otherwise anything short of</strong></span>
 

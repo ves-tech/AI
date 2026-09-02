@@ -11,12 +11,7 @@ const links = [
   { href: base, label: 'Home' },
   { href: withBase('damicus/'), label: 'Da-M-I-C-Us' },
   { href: withBase('damicus/explorer/'), label: 'Framework Explorer' },
-  { href: withBase('about/'), label: 'About' },
-  {
-    href: 'https://docs.google.com/document/d/1UgIfWKZOpVCDFoNGQE-uYR9_gIEDzRESEkAuGw0gh0k/edit?tab=t.hxcmncevec8l',
-    label: 'The draft standard',
-    external: true,
-  },
+  { href: withBase('about/'), label: 'About' }
 ];
 
 const currentPath = Astro.url.pathname;
