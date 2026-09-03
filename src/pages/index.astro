@@ -6,8 +6,6 @@ import { withBase } from '../lib/base';
 const icon = (name) => withBase(`Da-M-I-C-Us/damicus-icons-png/${name}.png`);
 
 // The full Da-M-I-C-Us document, linked from several places on this page.
-const FULL_DOC =
-  'https://docs.google.com/document/d/1UgIfWKZOpVCDFoNGQE-uYR9_gIEDzRESEkAuGw0gh0k/edit?tab=t.hxcmncevec8l';
 const ONE_PAGER = withBase('Da-M-I-C-Us/one-page/Da-M-I-C-Us Summary (standalone).html');
 
 // Anchors for this page's own sections. Deliberately not in Nav.astro —
@@ -69,12 +67,6 @@ const webinars = [
   { n: '03', title: 'How Generative Artificial Intelligence Might Affect Visual Effects Now and In the Future', note: 'The longer view: craft, employment and the shape of the work.' },
 ];
 
-const contrastCase = [
-  { icon: 'PD', code: 'PD', label: 'Owned data' },
-  { icon: 'PM', code: 'PM', label: 'Owned weights' },
-  { icon: 'SI', code: 'SI', label: 'Self-managed' },
-  { icon: 'PC', code: 'PC', label: 'Proprietary code' },
-];
 ---
 
 <BaseLayout
@@ -102,7 +94,7 @@ const contrastCase = [
         </p>
         <div class="btn-row">
           <a href={ONE_PAGER} target="_blank" rel="noopener" class="btn btn-primary">One-page reference sheet</a>
-          <a href={FULL_DOC} target="_blank" rel="noopener" class="btn btn-ghost">Read the full document</a>
+          <a href={withBase('damicus/')} class="btn btn-ghost">Read the full document</a>
         </div>
         <p class="fineprint">
           Da-M-I-C-Us v1.0, draft 2 · working material, not a ratified VES standard.
@@ -192,40 +184,6 @@ const contrastCase = [
       </div>
     </section>
 
-    <section class="band closing">
-      <div class="closing-grid">
-        <div>
-          <h2>Two documents, one scheme</h2>
-          <p class="closing-lede">
-            Start with the one-page sheet if you need to classify something this afternoon.
-            Go to the full document for the definitions, the matching rules and the worked
-            examples — and to leave comments for the working group.
-          </p>
-          <div class="btn-row">
-            <a href={ONE_PAGER} target="_blank" rel="noopener" class="btn btn-primary">One-page sheet</a>
-            <a href={FULL_DOC} target="_blank" rel="noopener" class="btn btn-ghost">Full document (Google Docs)</a>
-          </div>
-        </div>
-        <figure class="card elev-md figure-card">
-          <figcaption class="bordered">
-            <span>Contrast case</span>
-            <span class="figcap-code">PD-PM-SI-PC-unset</span>
-          </figcaption>
-          <div class="contrast-grid">
-            {contrastCase.map((c) => (
-              <div class="contrast-cell">
-                <img src={icon(c.icon)} alt="" class="contrast-icon" />
-                <b>{c.code}</b>
-                <span>{c.label}</span>
-              </div>
-            ))}
-          </div>
-          <p class="contrast-note">
-            An in-house model on owned data — the same notation, a very different conversation.
-          </p>
-        </figure>
-      </div>
-    </section>
   </div>
 </BaseLayout>
 
@@ -297,27 +255,6 @@ const contrastCase = [
     margin: 16.8px 0 0;
   }
   .fineprint.wide { line-height: 1.6; }
-
-  /* --- Figure cards (worked example / contrast case) --- */
-  .figure-card { margin: 0; padding: 0; overflow: hidden; }
-  .figure-card figcaption {
-    padding: 11.2px 16.8px;
-    background: linear-gradient(to right, var(--color-divider), var(--color-divider) 80%, transparent)
-      bottom / 100% 1px no-repeat;
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-neutral-400);
-    display: flex;
-    justify-content: space-between;
-    gap: 11.2px;
-    flex-wrap: wrap;
-  }
-  .figure-card figcaption.bordered {
-    background: none;
-    border-bottom: 1px solid var(--color-divider);
-  }
-  .figcap-code { color: var(--color-accent-300); }
 
   /* --- Content bands --- */
   .band { max-width: 1120px; margin: 0 auto; padding: 22.4px 22.4px 56px; }
@@ -445,55 +382,9 @@ const contrastCase = [
     color: var(--color-accent-200);
   }
 
-  /* --- Closing band --- */
-  .closing { padding: 67.2px 22.4px; }
-  .closing-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 44.8px;
-    align-items: center;
-  }
-  .closing h2 {
-    font-family: var(--font-heading);
-    font-weight: 500;
-    font-size: clamp(28px, 3vw, 40px);
-    line-height: 1.08;
-    letter-spacing: -0.02em;
-    margin: 0;
-  }
-  .closing-lede {
-    font-size: 15.5px;
-    line-height: 1.6;
-    max-width: 52ch;
-    margin: 16.8px 0 0;
-    color: var(--color-neutral-300);
-  }
-  .contrast-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
-  .contrast-cell {
-    padding: 16.8px 11.2px;
-    text-align: center;
-    display: grid;
-    gap: 8.4px;
-    justify-items: center;
-  }
-  .contrast-cell + .contrast-cell { border-left: 1px solid var(--color-divider); }
-  .contrast-icon { width: 46px; height: 46px; display: block; border-radius: var(--radius-sm); }
-  .contrast-cell b { font-family: var(--font-heading); font-weight: 500; font-size: 16px; }
-  .contrast-cell span { font-size: 12.5px; line-height: 1.4; color: var(--color-neutral-500); }
-  .contrast-note {
-    margin: 0;
-    padding: 11.2px 16.8px;
-    border-top: 1px solid var(--color-divider);
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--color-neutral-500);
-  }
-
   @media (max-width: 860px) {
-    .hero, .webinars-inner, .closing-grid { grid-template-columns: minmax(0, 1fr); gap: 33.6px; }
+    .hero, .webinars-inner { grid-template-columns: minmax(0, 1fr); gap: 33.6px; }
     .hero { padding-top: 44.8px; }
     .tool-grid { grid-template-columns: minmax(0, 1fr); }
-    .contrast-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .contrast-cell:nth-child(3) { border-left: none; }
   }
 </style>
