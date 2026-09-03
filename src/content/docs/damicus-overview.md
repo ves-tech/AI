@@ -1,7 +1,7 @@
 ---
 title: "Da-M-I-C-Us Overview"
 sourcedFrom: "https://docs.google.com/document/d/1UgIfWKZOpVCDFoNGQE-uYR9_gIEDzRESEkAuGw0gh0k/edit"
-lastSynced: "2026-09-02T16:07:02.597Z"
+lastSynced: "2026-09-03T17:21:25.668Z"
 ---
 **<span style="color:#1a36b4"><strong>DRAFT2 (WIP)</strong></span>**
 
@@ -182,7 +182,7 @@ Classification classes name the recurring _shapes_ <span style="color:#1d1d1d">
 
 ### <span style="color:#1a36b4">C3 &nbsp; Permissive Open Model</span>
 
-<span style="color:#1b2a9e"><strong>WD-OM-SI-OC</strong></span><span style="color:#1b2a9e"><strong>b</strong></span><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 692.00px; height: 161.22px;"><img alt="" src="/AI/doc-images/damicus/d031c70033.png" style="width: 720.00px; height: 384.26px; margin-left: -18.00px; margin-top: -58.26px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span>
+<span style="color:#1b2a9e"><strong>WD-OM-SI-OC</strong></span><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 692.00px; height: 161.22px;"><img alt="" src="/AI/doc-images/damicus/d031c70033.png" style="width: 720.00px; height: 384.26px; margin-left: -18.00px; margin-top: -58.26px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span>
 
 **What it is.** <span style="color:#1d1d1d">An open-weights model under a permissive licence, self-hostable, with open source, trained on web-collected data.</span>
 
