@@ -18,14 +18,6 @@ const sections = [
   { href: '#webinars', label: 'Webinars' },
 ];
 
-const workedExample = [
-  { icon: 'WD', title: 'WD · Web-collected data', note: 'Rights not individually cleared' },
-  { icon: 'OM', title: 'OM · Open model', note: 'Permissively licensed weights' },
-  { icon: 'SI', title: 'SI · Self-managed', note: 'Inference on your own machines' },
-  { icon: 'OC', title: 'OC · Open code', note: 'Surrounding software is open' },
-  { icon: 'unset', title: 'Use · unset', note: 'A capability class — no verdict attaches', muted: true },
-];
-
 const dimensions = [
   {
     icon: 'PD', name: 'Data', abbr: '(Da)', codes: 'PD LD ND WD UD',
@@ -98,9 +90,8 @@ const contrastCase = [
       <div>
         <span class="tag tag-outline hero-tag">Generative AI working group</span>
         <h1 class="hero-title">
-          <span>A common way to</span>
-          <span>describe an AI tool</span>
-          <span class="accent">for an organization.</span>
+          <span>Da-M-I-C-Us</span>
+          <span class="subtitle">A classification framework for AI solutions</span>
         </h1>
         <p class="hero-lede">
           <b>Da-M-I-C-Us</b> is a classification scheme from the VES Technology
@@ -276,6 +267,18 @@ const contrastCase = [
   }
   .hero-title span { display: block; }
   .hero-title .accent { color: var(--color-accent); }
+  /* Sits inside the h1, so it has to undo the display-size type the heading
+     sets — otherwise it inherits the 42–76px clamp, weight 500 and the tight
+     -0.02em tracking, none of which suit text at this size. */
+  .hero-title .subtitle {
+    font-size: clamp(17px, 1.7vw, 23px);
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: 0;
+    color: var(--color-neutral-300);
+    margin-top: 16px;
+    max-width: 36ch;
+  }
   .hero-lede {
     font-size: 17px;
     line-height: 1.6;
@@ -315,29 +318,6 @@ const contrastCase = [
     border-bottom: 1px solid var(--color-divider);
   }
   .figcap-code { color: var(--color-accent-300); }
-
-  .example-row {
-    display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
-    gap: 14px;
-    align-items: center;
-    padding: 11.2px 16.8px;
-  }
-  .example-row + .example-row { border-top: 1px solid var(--color-divider); }
-  .example-icon {
-    width: 44px; height: 44px; display: block;
-    border-radius: var(--radius-sm);
-  }
-  .example-icon.muted { opacity: 0.65; }
-  .example-title {
-    font-family: var(--font-heading);
-    font-weight: 500;
-    font-size: 17px;
-    display: block;
-    letter-spacing: -0.01em;
-  }
-  .example-title.muted { color: var(--color-neutral-500); }
-  .example-note { font-size: 13.5px; color: var(--color-neutral-500); }
 
   /* --- Content bands --- */
   .band { max-width: 1120px; margin: 0 auto; padding: 22.4px 22.4px 56px; }
