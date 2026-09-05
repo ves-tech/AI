@@ -298,7 +298,10 @@ const webinars = [
   .dimension-table .col-dim { width: 22%; }
   .dimension-table .col-codes { width: 16%; }
   .table-icon { width: 40px; height: 40px; display: block; border-radius: var(--radius-sm); }
-  .dim-code { font-weight: 600; }
+  /* accent-400 rather than the base accent: at this size the code has to read
+     as highlighted, and the base accent (4.9:1 here) sits dimmer than the
+     near-white it interrupts, so it recedes instead. */
+  .dim-code { font-weight: 600; color: var(--color-accent-400); }
 
   /* --- Tool cards (was style-hover in the design-tool export) --- */
   .tool-grid {
