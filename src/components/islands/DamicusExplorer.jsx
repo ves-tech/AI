@@ -84,7 +84,7 @@ export default function DamicusExplorer() {
             className={d.key === activeKey ? 'active' : ''}
             onClick={() => setActiveKey(d.key)}
           >
-            {d.key} — {d.name}
+            {d.key} · {d.name}
           </button>
         ))}
       </div>
