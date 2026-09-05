@@ -18,26 +18,37 @@ const sections = [
 
 const dimensions = [
   {
-    icon: 'PD', name: 'Data', abbr: '(Da)', codes: 'PD LD ND WD UD',
+    icon: 'PD', name: 'Data', code: 'Da', codes: 'PD LD ND WD UD',
     question: 'What was the model trained on, and are those rights cleared for this use?',
   },
   {
-    icon: 'OM', name: 'Model', abbr: '(M)', codes: 'PM OM CM RM',
+    icon: 'OM', name: 'Model', code: 'M', codes: 'PM OM CM RM',
     question: 'Who owns or licenses the weights, and on what terms are they available?',
   },
   {
-    icon: 'SI', name: 'Infrastructure', abbr: '(I)', codes: 'SI EI DI MI',
+    icon: 'SI', name: 'Infrastructure', code: 'I', codes: 'SI EI DI MI',
     question: 'Where does inference run: your machines, the edge, or someone else’s service?',
   },
   {
-    icon: 'OC', name: 'Code', abbr: '(C)', codes: 'PC OC CC RC UC',
+    icon: 'OC', name: 'Code', code: 'C', codes: 'PC OC CC RC UC',
     question: 'What is the licence status of the surrounding software and pipeline?',
   },
   {
-    icon: 'IU', name: 'Use', abbr: '(Us)', codes: 'BU PU IU DU',
+    icon: 'IU', name: 'Use', code: 'Us', codes: 'BU PU IU DU',
     question: 'What is it actually being used for on this show? Leave it unset and you have a capability class, not a deployment.',
   },
 ];
+
+// Every dimension's code is the leading letters of its own name (Data -> Da,
+// Use -> Us), so the code can be highlighted in place rather than repeated in
+// brackets. If a code ever stops being its name's prefix, fall back to the
+// bracketed form rather than slicing the wrong letters off.
+const dims = dimensions.map((d) => {
+  const fits = d.name.toLowerCase().startsWith(d.code.toLowerCase());
+  return fits
+    ? { ...d, lead: d.name.slice(0, d.code.length), rest: d.name.slice(d.code.length) }
+    : { ...d, lead: '', rest: `${d.name} (${d.code})` };
+});
 
 // Paths corrected: three of these omitted the Da-M-I-C-Us/ prefix in the
 // original index.html and 404'd on the deployed site.
@@ -121,10 +132,10 @@ const webinars = [
             </tr>
           </thead>
           <tbody>
-            {dimensions.map((d) => (
+            {dims.map((d) => (
               <tr>
                 <td><img src={icon(d.icon)} alt="" class="table-icon" /></td>
-                <td>{d.name} <span class="abbr">{d.abbr}</span></td>
+                <td><b class="dim-code">{d.lead}</b>{d.rest}</td>
                 <td>{d.codes}</td>
                 <td>{d.question}</td>
               </tr>
@@ -287,7 +298,7 @@ const webinars = [
   .dimension-table .col-dim { width: 22%; }
   .dimension-table .col-codes { width: 16%; }
   .table-icon { width: 40px; height: 40px; display: block; border-radius: var(--radius-sm); }
-  .abbr { color: var(--color-neutral-500); }
+  .dim-code { font-weight: 600; }
 
   /* --- Tool cards (was style-hover in the design-tool export) --- */
   .tool-grid {
