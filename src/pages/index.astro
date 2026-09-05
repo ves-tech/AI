@@ -135,7 +135,7 @@ const webinars = [
             {dims.map((d) => (
               <tr>
                 <td><img src={icon(d.icon)} alt="" class="table-icon" /></td>
-                <td><b class="dim-code">{d.lead}</b>{d.rest}</td>
+                <td><b class="dim-code">{d.lead}</b><span class="dim-rest">{d.rest}</span></td>
                 <td>{d.codes}</td>
                 <td>{d.question}</td>
               </tr>
@@ -298,10 +298,11 @@ const webinars = [
   .dimension-table .col-dim { width: 22%; }
   .dimension-table .col-codes { width: 16%; }
   .table-icon { width: 40px; height: 40px; display: block; border-radius: var(--radius-sm); }
-  /* accent-400 rather than the base accent: at this size the code has to read
-     as highlighted, and the base accent (4.9:1 here) sits dimmer than the
-     near-white it interrupts, so it recedes instead. */
-  .dim-code { font-weight: 600; color: var(--color-accent-400); }
+  /* The code keeps the full text colour and the rest of the name recedes to
+     the same 60% the table headers use, so the emphasis comes from what is
+     dimmed rather than from colouring one or two letters. */
+  .dim-code { font-weight: 600; }
+  .dim-rest { color: color-mix(in srgb, var(--color-text) 60%, transparent); }
 
   /* --- Tool cards (was style-hover in the design-tool export) --- */
   .tool-grid {
