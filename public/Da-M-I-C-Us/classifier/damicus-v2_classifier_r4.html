@@ -582,21 +582,46 @@ function buildCard(c) {
   s += Tt(272, 78, 13, "CLASSIFICATION", 700, "#9A9AA0");
   const today = new Date().toISOString().slice(0, 10);
   s += Tt(1140, 78, 13, today, 400, "#55555A", "end");
-  // icon string
-  let tx = 60;
-  const put = (code, label, name) => {
-    s += embed(code === null ? TILES.UNSET : tileSvg(code), tx, 140, 96, 96);
-    s += Tt(tx + 48, 258, 13, label, 700, "#1A1A1E", "middle");
-    if (name) s += Tt(tx + 48, 276, 10.5, name, 400, "#55555A", "middle");
-    tx += 110;
-  };
-  for (const dd of ["Da", "M", "I", "C"]) {
-    dimValues(c, dd).forEach((vd, i) => {
-      if (i > 0) { s += Tt(tx - 4, 198, 24, "+", 700, "#1A1A1E", "middle"); tx += 18; }
-      put(vd, vd, NAMES[vd]);
-    });
+  // icon string — grouped by dimension so it can be read without knowing the
+  // scheme, and sized to fit: with both Da and M composite the old fixed
+  // 110px step ran to x=852 and collided with the donut at x=810.
+  const DIMFULL = { Da: "Data", M: "Model", I: "Infrastructure", C: "Code", Us: "Use" };
+  const groups = ["Da", "M", "I", "C"].map((d) => ({ d, codes: dimValues(c, d) }));
+  groups.push({ d: "Us", codes: c.Us === null ? [null] : [c.Us] });
+
+  const X0 = 60, XMAX = 778, TILE_TOP = 140;
+  const tileCount = groups.reduce((n, g) => n + g.codes.length, 0);
+  const sepCount = groups.reduce((n, g) => n + Math.max(0, g.codes.length - 1), 0);
+  let T = 96, STEP, SEP, GAP;
+  for (const cand of [96, 88, 80, 72, 64, 58, 52]) {
+    T = cand; STEP = T + 14; SEP = Math.round(T * 0.19); GAP = Math.round(T * 0.34);
+    if (X0 + tileCount * STEP + sepCount * SEP + (groups.length - 1) * GAP - (STEP - T) <= XMAX) break;
   }
-  if (c.Us === null) put(null, "—", "unset"); else put(c.Us, c.Us, NAMES[c.Us]);
+  const CODE_Y = TILE_TOP + T + 22, NAME_Y = CODE_Y + 17;
+
+  let tx = X0;
+  for (const g of groups) {
+    const gx0 = tx;
+    g.codes.forEach((code, i) => {
+      if (i > 0) {
+        s += Tt(tx - 4, TILE_TOP + T * 0.62, Math.round(T * 0.25), "+", 700, "#1A1A1E", "middle");
+        tx += SEP;
+      }
+      s += embed(code === null ? TILES.UNSET : tileSvg(code), tx, TILE_TOP, T, T);
+      s += Tt(tx + T / 2, CODE_Y, Math.round(T * 0.135) + 2, code === null ? "\u2014" : code,
+              700, "#1A1A1E", "middle");
+      const nm = code === null ? "unset" : NAMES[code];
+      if (nm) s += Tt(tx + T / 2, NAME_Y, Math.round(T * 0.105) + 1.5, nm, 400, "#55555A", "middle");
+      tx += STEP;
+    });
+    // Heading over the group, with a hairline tying it to its tiles.
+    const gx1 = tx - (STEP - T);
+    s += Tt((gx0 + gx1) / 2, TILE_TOP - 16, 11, DIMFULL[g.d].toUpperCase(), 700, "#9A9AA0", "middle");
+    s += '<line x1="' + gx0 + '" y1="' + (TILE_TOP - 10) + '" x2="' + gx1 +
+         '" y2="' + (TILE_TOP - 10) + '" stroke="#DCDCE0" stroke-width="1.5"/>';
+    tx += GAP;
+  }
+
   // donut
   s += embed(renderBadge(c, 250), 810, 108, 250, 250);
   s += Tt(935, 388, 10.5, "Read clockwise from 12: Da · M · I · C · Us",

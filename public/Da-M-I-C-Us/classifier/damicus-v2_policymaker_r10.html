@@ -433,6 +433,66 @@ function copyPolicy(){
   if (navigator.clipboard) navigator.clipboard.writeText(JSON.stringify(policyObject(), null, 2));
 }
 
+// Embeds a TILES entry (viewBox 0 0 100 100) at a given size. The policy card
+// needs the bordered tiles rather than the bare FRAGS icons embedFrag draws.
+function embedTile(code, x, y, sz){
+  const t = TILES[code] || TILES.UNSET;
+  const i = t.indexOf(">"), j = t.lastIndexOf("</svg>");
+  return '<svg x="'+x+'" y="'+y+'" width="'+sz+'" height="'+sz+
+    '" viewBox="0 0 100 100">'+t.slice(i+1,j)+"</svg>";
+}
+
+// The notation alone ("Da{*} \u00b7 M{CM} \u00b7 I{MI/DI}") only reads if you already
+// know the scheme. This spells it out underneath: one column per dimension in
+// the same left-to-right order as the string, under a plain-English heading,
+// with every permitted code shown as its icon, its code and its name.
+const DIMFULL = { Da:"Data", M:"Model", I:"Infrastructure", C:"Code", Us:"Use" };
+
+function decoderBand(set, top){
+  const F = SVGFONT;
+  const Tt=(x,y,sz,t,w,f,a)=>'<text x="'+x+'" y="'+y+'" font-family="'+F+'" font-size="'+sz+
+    '" font-weight="'+(w||400)+'" fill="'+(f||"#1A1A1E")+'" text-anchor="'+(a||"start")+'">'+t+"</text>";
+  const X0 = 60, W = 1080, COLS = 5, COLW = W / COLS;
+  const PER_ROW = 3, CELL = 68, TILE = 46, ROWH = 78;
+  const cellsOf = (d) => set[d] === "*" ? ["*"] : (set[d].length ? set[d] : ["\u2014"]);
+  const rows = Math.max(1, ...DIMS.map((d) => Math.ceil(cellsOf(d).length / PER_ROW)));
+
+  let s = Tt(X0, top, 11, "WHAT THIS POLICY PERMITS", 700, "#9A9AA0");
+  s += '<line x1="'+X0+'" y1="'+(top+10)+'" x2="'+(X0+W)+'" y2="'+(top+10)+'" stroke="#DCDCE0" stroke-width="2"/>';
+  const titleY = top + 32, iconTop = top + 44;
+
+  DIMS.forEach((d, ci) => {
+    const cx = X0 + ci * COLW;
+    s += Tt(cx, titleY, 15, DIMFULL[d], 700);
+    s += Tt(cx, titleY + 15, 10, d, 700, "#9A9AA0");
+    if (ci) s += '<line x1="'+(cx-14)+'" y1="'+(top+22)+'" x2="'+(cx-14)+'" y2="'+
+      (iconTop + rows*ROWH - 6)+'" stroke="#ECECEF" stroke-width="2"/>';
+
+    cellsOf(d).forEach((code, i) => {
+      const r = Math.floor(i / PER_ROW), c = i % PER_ROW;
+      const x = cx + c * CELL, y = iconTop + 14 + r * ROWH;
+      if (code === "*"){
+        s += '<rect x="'+x+'" y="'+y+'" width="'+TILE+'" height="'+TILE+'" rx="11" fill="#FFFFFF" stroke="#8A8A8E" stroke-width="2.4" stroke-dasharray="5 4"/>';
+        s += '<text x="'+(x+TILE/2)+'" y="'+(y+TILE/2+7)+'" font-size="19" font-weight="700" text-anchor="middle" fill="#1A1A1E" font-family="'+F+'">\u2605</text>';
+        s += Tt(x+TILE/2, y+TILE+15, 11, "any", 700, "#1A1A1E", "middle");
+        s += Tt(x+TILE/2, y+TILE+27, 8.5, "no limit", 400, "#55555A", "middle");
+        return;
+      }
+      if (code === "\u2014"){
+        s += '<rect x="'+x+'" y="'+y+'" width="'+TILE+'" height="'+TILE+'" rx="11" fill="#F6F6F8" stroke="#DCDCE0" stroke-width="2"/>';
+        s += Tt(x+TILE/2, y+TILE/2+6, 17, "\u2014", 700, "#C9C9CE", "middle");
+        s += Tt(x+TILE/2, y+TILE+15, 11, "none", 700, "#9A9AA0", "middle");
+        s += Tt(x+TILE/2, y+TILE+27, 8.5, "not set", 400, "#9A9AA0", "middle");
+        return;
+      }
+      s += embedTile(code, x, y, TILE);
+      s += Tt(x+TILE/2, y+TILE+15, 11, code, 700, "#1A1A1E", "middle");
+      s += Tt(x+TILE/2, y+TILE+27, 8.5, esc(NAMES[code] || ""), 400, "#55555A", "middle");
+    });
+  });
+  return { svg: s, bottom: iconTop + 14 + rows * ROWH + 22 };
+}
+
 function buildPolicyCard(){
   const set = permittedSet(ed);
   const mc = matchClass(set);
@@ -441,7 +501,8 @@ function buildPolicyCard(){
   const own = !!(nmF || coF);
   const name = esc(nmF || (mc && !own ? mc.id + " \u00b7 " + mc.name : "Organisational AI policy"));
   const company = esc(coF);
-  const H = 560;
+  const band = decoderBand(set, 444);
+  const H = Math.round(band.bottom + 104);
   const F = SVGFONT;
   const Tt=(x,y,s,t,w,f,a)=>'<text x="'+x+'" y="'+y+'" font-family="'+F+'" font-size="'+s+
     '" font-weight="'+(w||400)+'" fill="'+(f||"#1A1A1E")+'" text-anchor="'+(a||"start")+'">'+t+"</text>";
@@ -458,6 +519,7 @@ function buildPolicyCard(){
   if (company) s+=Tt(390,250,15,company,400,"#55555A");
   s+=Tt(390,300,16,notation(set),700);
   if (mc && own) s+=Tt(390,332,13,"This policy matches the common policy class: "+mc.id+" \u00b7 "+mc.name,700,"#55555A");
+  s += band.svg;
   const leg=[["#FFFFFF","Cleared or controlled",60],["#E8A33D","Terms or restrictions apply",250],
              ["#C4392F","Rights uncertainty or delivery exposure",510],[null,"Wildcard \u2014 any value permitted",860]];
   for(const[fill,label,lx]of leg){
