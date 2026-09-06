@@ -1,6 +1,9 @@
 # VES AI
 
 Area devoted to AI projects of the VES Technology Committee.
+For the main page, please goto [https://ves-tech.github.io/AI/](https://ves-tech.github.io/AI/).
+
+
 Built with [Astro](https://astro.build) → static output → deployed to GitHub Pages.
 
 ## Local development
