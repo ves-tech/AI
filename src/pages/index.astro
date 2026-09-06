@@ -35,7 +35,7 @@ const dimensions = [
   },
   {
     icon: 'IU', name: 'Use', code: 'Us', codes: 'BU PU IU DU',
-    question: 'What is it actually being used for on this show? Leave it unset and you have a capability class, not a deployment.',
+    question: 'What is it actually being used for on this show?',
   },
 ];
 
@@ -56,17 +56,17 @@ const tools = [
   {
     kicker: 'Guided · r4', title: 'Classifier',
     href: withBase('Da-M-I-C-Us/classifier/damicus-v2_classifier_r4.html'),
-    body: 'Answer the questions and the five-code string builds as you go, with a printable classification card at the end.',
+    body: 'Answer the questions and the five-code string builds as you go, with a shareable classification card at the end.',
   },
   {
     kicker: 'Normative · r10', title: 'Policy Maker',
     href: withBase('Da-M-I-C-Us/classifier/damicus-v2_policymaker_r10.html'),
-    body: 'Set what an organisation permits, what needs approval and what it refuses, then export the rule list as JSON the other tools can read.',
+    body: 'Set what an organisation permits, what needs approval and what it refuses, then export the rule list as JSON that other tools can read.',
   },
   {
     kicker: 'Exploration shell', title: 'Compare',
     href: withBase('Da-M-I-C-Us/classifier/index.html'),
-    body: 'What it is on the left, what the organisation permits on the right, and the verdict in the circle between them.',
+    body: 'An intuiitive visual. What it is on the left, what is allowed on the right, and the verdict in the center circle.',
   },
 ];
 
@@ -169,16 +169,15 @@ const webinars = [
     <section id="webinars" class="webinars">
       <div class="webinars-inner">
         <div>
-          <span class="kicker">GenAI webinars</span>
-          <h2>Where the thinking came from</h2>
+          <span class="kicker">VES events</span>
+          <h2>Previous VES AI webinars</h2>
           <p class="webinars-lede">
-            The classification work follows a run of public sessions on what generative AI
-            is actually doing inside visual effects: in artists’ hands, in the
-            software, and in the contracts around both.
+            The DaMICUs classification work follows a run of public sessions on what is actually happening with generative AI
+            within the visual effects community.
           </p>
           <div class="btn-row">
-            <a href={GENAI_RESOURCES} target="_blank" rel="noopener" class="btn btn-primary on-section">GenAI resources page</a>
-            <a href="https://vesglobal.org/technology-committee-activities/" target="_blank" rel="noopener" class="btn btn-ghost on-section">Committee activities</a>
+            <a href={GENAI_RESOURCES} target="_blank" rel="noopener" class="btn btn-primary on-section">VES Gen AI resources</a>
+            <a href="https://vesglobal.org/technology-committee-activities/" target="_blank" rel="noopener" class="btn btn-ghost on-section">VES Tech Committee</a>
           </div>
         </div>
         <ol class="webinar-list">
