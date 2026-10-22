@@ -17,7 +17,10 @@ const ROOT = 'public/Da-M-I-C-Us';
 const TOOLS = [
   { key: 'classifier', label: 'Classifier', path: 'classifier/damicus-v2_classifier_r4.html' },
   { key: 'policy', label: 'Policy Maker', path: 'classifier/damicus-v2_policymaker_r10.html' },
-  { key: 'compare', label: 'Compare', path: 'classifier/index.html' },
+  // Compare embeds the Classifier and Policy Maker and switches between them
+  // in-page, so its nav (Key link, switchView handlers) is maintained by hand.
+  // It stays listed so the other tools still link to it.
+  { key: 'compare', label: 'Compare', path: 'classifier/index.html', manual: true },
   { key: 'onepage', label: 'One-page sheet', path: 'one-page/Da-M-I-C-Us Summary (standalone).html' },
 ];
 
@@ -72,6 +75,10 @@ ${END}`;
 
 for (const tool of TOOLS) {
   const file = `${ROOT}/${tool.path}`;
+  if (tool.manual) {
+    console.log(`skip (hand-maintained nav) -> ${file}`);
+    continue;
+  }
   let html = readFileSync(file, 'utf8');
 
   // Idempotent: strip any previously injected block first.
