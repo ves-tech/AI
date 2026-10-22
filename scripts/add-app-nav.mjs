@@ -15,6 +15,8 @@ const ROOT = 'public/Da-M-I-C-Us';
 
 // key -> path relative to the Da-M-I-C-Us folder
 const TOOLS = [
+  // The Key is a view inside Compare, not a file of its own: link only.
+  { key: 'key', label: 'Key', path: 'classifier/index.html#key', linkOnly: true },
   { key: 'classifier', label: 'Classifier', path: 'classifier/damicus-v2_classifier_r4.html' },
   { key: 'policy', label: 'Policy Maker', path: 'classifier/damicus-v2_policymaker_r10.html' },
   // Compare embeds the Classifier and Policy Maker and switches between them
@@ -74,6 +76,7 @@ ${END}`;
 };
 
 for (const tool of TOOLS) {
+  if (tool.linkOnly) continue;
   const file = `${ROOT}/${tool.path}`;
   if (tool.manual) {
     console.log(`skip (hand-maintained nav) -> ${file}`);
