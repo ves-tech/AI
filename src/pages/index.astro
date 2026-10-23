@@ -70,6 +70,9 @@ const tools = [
   },
 ];
 
+// The Key is a view inside the Compare shell, opened by its #key hash.
+const KEY = withBase('Da-M-I-C-Us/classifier/index.html#key');
+
 const GENAI_RESOURCES = 'https://www.vesglobal.org/gen-ai-resources-page/';
 
 const webinars = [
@@ -160,6 +163,9 @@ const webinars = [
           </a>
         ))}
       </div>
+      <p class="tool-more">
+        <a href={KEY} target="_blank" rel="noopener">Key: how to read the codes, colors and results &rarr;</a>
+      </p>
     </section>
 
     <section id="webinars" class="webinars">
@@ -315,6 +321,9 @@ const webinars = [
     box-shadow: 0 0 0 1px var(--color-accent-600), 0 6px 18px rgba(0, 0, 0, 0.55);
   }
   .tool-card .card-title { font-size: 21px; }
+  .tool-more { margin: 16.8px 0 0; font-size: 15px; }
+  .tool-more a { color: var(--color-accent-300); }
+  .tool-more a:hover { color: var(--color-accent-100); }
 
   /* --- Webinars band --- */
   .webinars {
